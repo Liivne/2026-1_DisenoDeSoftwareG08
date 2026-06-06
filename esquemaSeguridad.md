@@ -39,7 +39,7 @@ Si el token no es válido o ha expirado, el acceso es rechazado.
 
 El sistema utiliza un esquema de control de acceso basado en roles.
 
-#### Usuario
+#### Ciudadano
 
 Permisos:
 
@@ -79,7 +79,7 @@ Antes de ejecutar cualquier operación protegida, el sistema verifica:
 
 #### Reglas de acceso específicas
 
-* Una persona usuaria solo puede acceder a su propio historial de vacunación.
+* Un ciudadano solo puede acceder a su propio historial de vacunación.
 * Un funcionario puede consultar historiales de pacientes para fines autorizados.
 * Solo el coordinador puede gestionar campañas, supervisar vacunadores y administrar usuarios del sistema.
 
