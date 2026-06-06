@@ -1,0 +1,12 @@
+{% extends "booking/base.html" %}
+{% block content %}
+<section class="card narrow">
+    <p class="eyebrow">Pantalla: Login</p>
+    <h2>Iniciar sesión</h2>
+    <form method="post" class="form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="button primary" type="submit">Ingresar</button>
+    </form>
+</section>
+{% endblock %}

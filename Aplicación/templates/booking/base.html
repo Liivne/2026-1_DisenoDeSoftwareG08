@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Agenda de Vacunación{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <header class="topbar">
+        <div>
+            <p class="eyebrow">Sistema de agendamiento</p>
+            <h1>Vacunación Ciudadana</h1>
+        </div>
+        <nav class="nav">
+            <a href="/">Inicio</a>
+            <a href="/dashboard/">Menú principal</a>
+            <a href="/campaigns/">Campañas</a>
+            <a href="/schedule/">Agendamiento</a>
+            <a href="/logout/">Salir</a>
+        </nav>
+    </header>
+
+    <main class="shell">
+        {% if messages %}
+            <section class="messages">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </section>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

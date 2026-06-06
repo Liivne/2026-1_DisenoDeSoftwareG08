@@ -1,0 +1,20 @@
+{% extends "booking/base.html" %}
+{% block content %}
+<section class="card">
+    <p class="eyebrow">Sin cupos disponibles</p>
+    <h2>No existen cupos disponibles para la selección realizada.</h2>
+    <p class="lead">El usuario debe volver a seleccionar otra combinación y reintentar el agendamiento.</p>
+</section>
+
+<section class="grid">
+    <article class="card">
+        <h3>Selección actual</h3>
+        <p><strong>Campaña:</strong> {{ selection.campaign }}</p>
+        <p><strong>Vacuna:</strong> {{ selection.vaccine }}</p>
+        <p><strong>Punto:</strong> {{ selection.point }}</p>
+    </article>
+    <article class="card actions-row">
+        <a class="button primary" href="/schedule/">Volver a agendamiento</a>
+    </article>
+</section>
+{% endblock %}
