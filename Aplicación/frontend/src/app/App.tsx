@@ -8,6 +8,7 @@ import {
 	Stack,
 	Typography,
 } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 import VaccinesIcon from "@mui/icons-material/Vaccines";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
@@ -102,7 +103,7 @@ function App() {
 					</Box>
 
 					<Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-						<Button variant="contained" size="large">
+						<Button component={RouterLink} to="/login" variant="contained" size="large">
 							Empezar
 						</Button>
 						<Button variant="outlined" size="large">

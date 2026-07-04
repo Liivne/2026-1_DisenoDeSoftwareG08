@@ -1,0 +1,110 @@
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  Container,
+  TextField,
+  Typography,
+  Paper,
+  Stack,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+
+export default function LoginPage() {
+  const navigate = useNavigate();
+  const [isRegister, setIsRegister] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  function validate() {
+    const e: Record<string, string> = {};
+    if (isRegister && !name) e.name = "El nombre es obligatorio";
+    if (!email) e.email = "El correo es obligatorio";
+    if (!password) e.password = "La contraseña es obligatoria";
+    if (isRegister && password !== confirm) e.confirm = "Las contraseñas no coinciden";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  }
+
+  function handleSubmit(ev?: React.FormEvent) {
+    ev?.preventDefault();
+    if (!validate()) return;
+
+    if (isRegister) {
+      // Aquí podrías llamar a la API de registro
+      // Simulamos registro y vamos al inicio
+      navigate("/");
+      return;
+    }
+
+    // Aquí podrías llamar a la API de autenticación
+    // Simulamos login y redirigimos al inicio
+    navigate("/");
+  }
+
+  return (
+    <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center", py: 6 }}>
+      <Container maxWidth="xs">
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }} component="form" onSubmit={handleSubmit}>
+          <Stack spacing={2}>
+            <Typography variant="h5">{isRegister ? "Crear cuenta" : "Iniciar sesión"}</Typography>
+
+            {isRegister && (
+              <TextField
+                label="Nombre completo"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                error={!!errors.name}
+                helperText={errors.name}
+                fullWidth
+              />
+            )}
+
+            <TextField
+              label="Correo electrónico"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              error={!!errors.email}
+              helperText={errors.email}
+              fullWidth
+            />
+
+            <TextField
+              label="Contraseña"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              error={!!errors.password}
+              helperText={errors.password}
+              fullWidth
+            />
+
+            {isRegister && (
+              <TextField
+                label="Confirmar contraseña"
+                type="password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                error={!!errors.confirm}
+                helperText={errors.confirm}
+                fullWidth
+              />
+            )}
+
+            <Button type="submit" variant="contained" fullWidth>
+              {isRegister ? "Crear cuenta" : "Entrar"}
+            </Button>
+
+            <Button variant="text" onClick={() => setIsRegister((s) => !s)}>
+              {isRegister ? "¿Ya tienes cuenta? Inicia sesión" : "¿No tienes cuenta? Regístrate"}
+            </Button>
+          </Stack>
+        </Paper>
+      </Container>
+    </Box>
+  );
+}
