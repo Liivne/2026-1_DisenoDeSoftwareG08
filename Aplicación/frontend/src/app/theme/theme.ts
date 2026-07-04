@@ -11,6 +11,6 @@ export const theme = createTheme({
 	breakpoints,
 	components,
 	shape: {
-		borderRadius: 16,
+		borderRadius: 8,
 	},
 });

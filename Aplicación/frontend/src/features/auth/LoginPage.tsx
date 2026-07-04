@@ -3,11 +3,14 @@ import {
   Box,
   Button,
   Container,
+  IconButton,
+  InputAdornment,
   TextField,
   Typography,
   Paper,
   Stack,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
@@ -17,6 +20,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   function validate() {
@@ -75,22 +79,48 @@ export default function LoginPage() {
 
             <TextField
               label="Contraseña"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               error={!!errors.password}
               helperText={errors.password}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      onClick={() => setShowPassword((value) => !value)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
               fullWidth
             />
 
             {isRegister && (
               <TextField
                 label="Confirmar contraseña"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 error={!!errors.confirm}
                 helperText={errors.confirm}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                        onClick={() => setShowPassword((value) => !value)}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
                 fullWidth
               />
             )}
