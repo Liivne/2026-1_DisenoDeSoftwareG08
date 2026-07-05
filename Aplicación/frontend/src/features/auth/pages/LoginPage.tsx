@@ -9,6 +9,10 @@ import {
   Typography,
   Paper,
   Stack,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +25,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   function validate() {
@@ -29,6 +34,7 @@ export default function LoginPage() {
     if (!email) e.email = "El correo es obligatorio";
     if (!password) e.password = "La contraseña es obligatoria";
     if (isRegister && password !== confirm) e.confirm = "Las contraseñas no coinciden";
+    if (isRegister && !role) e.role = "Debe seleccionar un rol";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -38,11 +44,18 @@ export default function LoginPage() {
     if (!validate()) return;
 
     if (isRegister) {
+      window.localStorage.setItem("vaccination.name", name);
+      window.localStorage.setItem("vaccination.role", role);
       // Aquí podrías llamar a la API de registro
       // Simulamos registro y vamos al inicio
       navigate("/");
       return;
     }
+
+    window.localStorage.setItem("vaccination.name", name);
+    // solucion temporal a falta de backend
+    const savedRole = window.localStorage.getItem("vaccination.role") ?? "Paciente";
+    window.localStorage.setItem("vaccination.role", savedRole);
 
     // Aquí podrías llamar a la API de autenticación
     // Simulamos login y redirigimos al inicio
@@ -65,6 +78,32 @@ export default function LoginPage() {
                 helperText={errors.name}
                 fullWidth
               />
+            )}
+
+            {isRegister && (
+              <FormControl fullWidth error={!!errors.role}>
+                <InputLabel>Rol</InputLabel>
+
+                <Select
+                  value={role}
+                  label="Rol"
+                  onChange={(e) => setRole(e.target.value)}
+                >
+                  <MenuItem value = "Paciente">Paciente</MenuItem>
+                  <MenuItem value = "Personal de Salud">Personal de Salud</MenuItem>
+                  <MenuItem value = "Administrador">Administrador</MenuItem>
+                </Select>
+
+                {!!errors.role && (
+                  <Typography
+                    variant="caption"
+                    color="error"
+                    sx={{ml: 2, mt: 0.5}}
+                    >
+                      {errors.role}
+                    </Typography>
+                )}
+              </FormControl>
             )}
 
             <TextField

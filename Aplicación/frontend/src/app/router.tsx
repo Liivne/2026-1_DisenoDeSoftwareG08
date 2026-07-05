@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 
 import App from "./App";
-import LoginPage from "@features/auth/LoginPage";
+import LoginPage from "@/features/auth/pages/LoginPage";
 
 export function AppRouter() {
 	return (
