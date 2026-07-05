@@ -7,7 +7,9 @@ import {
   Chip,
   Divider,
   Drawer,
+  Paper,
   IconButton,
+  ButtonBase,
   List,
   ListItemButton,
   ListItemIcon,
@@ -21,7 +23,6 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import LogoutIcon from "@mui/icons-material/Logout";
 import VaccinesIcon from "@mui/icons-material/Vaccines";
@@ -93,12 +94,7 @@ export default function DashboardShell({
           }),
         }}
       >
-        <Stack
-          direction="row"
-          spacing={1.5}
-          alignItems="center"
-          justifyContent="flex-start"
-        >
+        <Stack direction="row" spacing={1.5} alignItems="center" justifyContent="flex-start">
           <Box
             sx={{
               width: 44,
@@ -218,12 +214,94 @@ export default function DashboardShell({
     </Box>
   );
 
+  const mobileBottomBar = (
+    <Paper
+      elevation={10}
+      sx={{
+        display: { xs: "block", md: "none" },
+        position: "fixed",
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: (muiTheme) => muiTheme.zIndex.appBar + 1,
+        borderTop: 1,
+        borderColor: "divider",
+        borderRadius: "18px 18px 0 0",
+        backgroundColor: "rgba(255,255,255,0.94)",
+        backdropFilter: "blur(16px)",
+        px: 1,
+        py: 0.75,
+        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.5rem)",
+      }}
+    >
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${menuItems.length}, minmax(0, 1fr))`,
+          gap: 0.5,
+        }}
+      >
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const active = item.label === activeItemLabel;
+
+          return (
+            <ButtonBase
+              key={item.label}
+              sx={{
+                minHeight: 60,
+                borderRadius: 3,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 0.5,
+                color: active ? "primary.main" : "text.secondary",
+                bgcolor: active ? "rgba(21,101,192,0.08)" : "transparent",
+                transition: theme.transitions.create(["background-color", "color"], {
+                  duration: theme.transitions.duration.shorter,
+                }),
+              }}
+            >
+              <Box
+                sx={{
+                  width: 24,
+                  height: 24,
+                  display: "grid",
+                  placeItems: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Icon sx={{ fontSize: 24 }} />
+              </Box>
+              <Typography
+                variant="caption"
+                sx={{
+                  lineHeight: 1,
+                  fontWeight: active ? 700 : 500,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  width: "100%",
+                  textAlign: "center",
+                }}
+              >
+                {item.label}
+              </Typography>
+            </ButtonBase>
+          );
+        })}
+      </Box>
+    </Paper>
+  );
+
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#F4F7FB", display: "flex" }}>
       <Box
         component="nav"
         sx={{
-          width: { xs: drawerWidth, md: drawerWidth },
+          display: { xs: "none", md: "block" },
+          width: { md: drawerWidth },
           flexShrink: { md: 0 },
           transition: theme.transitions.create(["width"], {
             duration: theme.transitions.duration.shorter,
@@ -231,12 +309,8 @@ export default function DashboardShell({
         }}
       >
         <Drawer
-          variant={isDesktop ? "permanent" : "temporary"}
-          open={isDesktop ? true : mobileOpen}
-          onClose={() => setMobileOpen(false)}
-          ModalProps={{ keepMounted: true }}
+          variant="permanent"
           sx={{
-            display: { xs: "block", md: "block" },
             "& .MuiDrawer-paper": {
               width: drawerWidth,
               boxSizing: "border-box",
@@ -266,15 +340,6 @@ export default function DashboardShell({
           }}
         >
           <Toolbar sx={{ px: { xs: 2, md: 3 }, minHeight: 72, gap: 2 }}>
-            <IconButton
-              edge="start"
-              onClick={() => setMobileOpen(true)}
-              sx={{ display: { xs: "inline-flex", md: "none" } }}
-              aria-label="Abrir navegación"
-            >
-              <MenuIcon />
-            </IconButton>
-
             <Box sx={{ minWidth: 0, flex: 1 }}>
               <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.1 }}>
                 {title}
@@ -330,8 +395,10 @@ export default function DashboardShell({
           </Toolbar>
         </Box>
 
-        <Box sx={{ p: { xs: 2, md: 3 }, maxWidth: 1600, mx: "auto" }}>{children}</Box>
+        <Box sx={{ p: { xs: 2, md: 3 }, pb: { xs: 11, md: 3 }, maxWidth: 1600, mx: "auto" }}>{children}</Box>
       </Box>
+
+      {mobileBottomBar}
 
       <Menu
         anchorEl={profileMenuAnchor}
