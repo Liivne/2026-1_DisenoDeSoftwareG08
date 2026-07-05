@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Badge,
@@ -61,11 +61,44 @@ export default function DashboardShell({
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileMenuAnchor, setProfileMenuAnchor] = useState<null | HTMLElement>(null);
+  const [expandedContentVisible, setExpandedContentVisible] = useState(!collapsed);
+
+  useEffect(() => {
+    if (collapsed) {
+      setExpandedContentVisible(false);
+    }
+  }, [collapsed]);
+
+  const showExpandedContent = !collapsed && expandedContentVisible;
+
+  function handleDrawerTransitionEnd(event: React.TransitionEvent<HTMLDivElement>) {
+    if (event.propertyName !== "width") {
+      return;
+    }
+
+    if (!collapsed) {
+      setExpandedContentVisible(true);
+    }
+  }
 
   const drawerContent = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column", bgcolor: "background.paper" }}>
-      <Box sx={{ px: collapsed ? 1.5 : 3, py: 2.5, minHeight: 72 }}>
-        <Stack direction="row" spacing={1.5} alignItems="center" justifyContent={collapsed ? "center" : "flex-start"}>
+      <Box
+        sx={{
+          px: 3,
+          py: 2.5,
+          minHeight: 72,
+          transition: theme.transitions.create(["padding"], {
+            duration: theme.transitions.duration.shorter,
+          }),
+        }}
+      >
+        <Stack
+          direction="row"
+          spacing={1.5}
+          alignItems="center"
+          justifyContent="flex-start"
+        >
           <Box
             sx={{
               width: 44,
@@ -80,7 +113,7 @@ export default function DashboardShell({
           >
             <VaccinesIcon />
           </Box>
-          {!collapsed && (
+          {showExpandedContent && (
             <Box>
               <Typography variant="subtitle1" sx={{ fontWeight: 800, lineHeight: 1.1 }}>
                 VacunaGest
@@ -95,49 +128,108 @@ export default function DashboardShell({
 
       <Divider />
 
-      <List sx={{ px: collapsed ? 1 : 1.5, py: 1.5, flex: 1 }}>
+      <List
+        sx={{
+          px: 1.5,
+          py: 1.5,
+          flex: 1,
+          transition: theme.transitions.create(["padding"], {
+            duration: theme.transitions.duration.shorter,
+          }),
+        }}
+      >
         {menuItems.map((item) => {
           const Icon = item.icon;
           const active = item.label === activeItemLabel;
 
           return (
-            <ListItemButton key={item.label}>
+            <ListItemButton
+              key={item.label}
+              sx={{
+                minHeight: 48,
+                px: 1.5,
+                justifyContent: "flex-start",
+                borderRadius: 2,
+                transition: theme.transitions.create(["background-color"], {
+                  duration: theme.transitions.duration.shorter,
+                }),
+              }}
+            >
               <ListItemIcon
                 sx={{
-                  minWidth: collapsed ? 0 : 40,
+                  minWidth: 40,
+                  width: 40,
+                  height: 40,
                   color: active ? "primary.main" : "text.secondary",
                   justifyContent: "center",
+                  alignItems: "center",
+                  flexShrink: 0,
+                  mr: 0,
                 }}
               >
-                <Icon fontSize="small" />
+                <Icon sx={{ fontSize: 24 }} />
               </ListItemIcon>
 
-              {!collapsed && (
-                <ListItemText primary={item.label} />
+              {showExpandedContent && (
+                <ListItemText
+                  primary={item.label}
+                />
               )}
             </ListItemButton>
           );
         })}
       </List>
 
-      <Box sx={{ p: 1.5 }}>
         <Button
           fullWidth
           variant="outlined"
-          startIcon={!collapsed ? undefined : <KeyboardArrowRightOutlinedIcon />}
           onClick={onToggleCollapsed}
-          sx={{ justifyContent: collapsed ? "center" : "space-between" }}
+          sx={{
+            justifyContent: "flex-start",
+            px: 3,
+            gap: 1,
+          }}
         >
-          {!collapsed ? "Contraer menú" : null}
-          {!collapsed ? <KeyboardArrowLeftOutlinedIcon /> : null}
+          <Box
+            sx={{
+              width: 24,
+              height: 24,
+              display: "grid",
+              placeItems: "center",
+              flexShrink: 0,
+            }}
+          >
+            {showExpandedContent ? <KeyboardArrowLeftOutlinedIcon /> : <KeyboardArrowRightOutlinedIcon />}
+          </Box>
+
+          <Box
+            sx={{
+              flex: 1,
+              textAlign: "left",
+              opacity: showExpandedContent ? 1 : 0,
+              transition: theme.transitions.create(["opacity"], {
+                duration: theme.transitions.duration.shorter,
+              }),
+            }}
+          >
+            Contraer menú
+          </Box>
         </Button>
-      </Box>
     </Box>
   );
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#F4F7FB", display: "flex" }}>
-      <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
+      <Box
+        component="nav"
+        sx={{
+          width: { xs: drawerWidth, md: drawerWidth },
+          flexShrink: { md: 0 },
+          transition: theme.transitions.create(["width"], {
+            duration: theme.transitions.duration.shorter,
+          }),
+        }}
+      >
         <Drawer
           variant={isDesktop ? "permanent" : "temporary"}
           open={isDesktop ? true : mobileOpen}
@@ -155,6 +247,7 @@ export default function DashboardShell({
               overflowX: "hidden",
             },
           }}
+          PaperProps={{ onTransitionEnd: handleDrawerTransitionEnd }}
         >
           {drawerContent}
         </Drawer>
