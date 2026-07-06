@@ -8,6 +8,12 @@ export function AppRouter() {
 		<Routes>
 			<Route path="/" element={<App />} />
 			<Route path="/login" element={<LoginPage />} />
+			<Route path="/campaigns" element={<CampaignListPage />} />
+
+			<Route
+				path="/campaigns/new"
+				element={<CampaignCreatePage />}
+			/>
 		</Routes>
 	);
 }
