@@ -4,6 +4,8 @@ import LoginPage from "@/features/auth/pages/LoginPage";
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import CampaignListPage from "@/features/campaigns/pages/CampaignListPage";
 import CreateCampaignPage from "@/features/campaigns/pages/CreateCampaignPage";
+import AppointmentListPage from "@/features/appointments/pages/AppointmentListPage";
+import CreateAppointmentPage from "@/features/appointments/pages/CreateAppointmentPage";
 
 export function AppRouter() {
   return (
@@ -28,6 +30,14 @@ export function AppRouter() {
         <Route
           path="/campaigns/new"
           element={<CreateCampaignPage />}
+        />
+        <Route
+          path="/appointments"
+          element={<AppointmentListPage />}
+        />
+        <Route
+          path="/appointments/new"
+          element={<CreateAppointmentPage />}
         />
       </Route>
     </Routes>

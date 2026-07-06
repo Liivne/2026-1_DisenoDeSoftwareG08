@@ -6,7 +6,6 @@ import FactCheckOutlinedIcon from "@mui/icons-material/FactCheckOutlined";
 import GroupIcon from "@mui/icons-material/Group";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import VaccinesIcon from "@mui/icons-material/Vaccines";
-import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
 
 import type { Role } from "@/shared/types/role";
 import type { MenuItem } from "./menu";
@@ -29,10 +28,8 @@ export const sidebarConfig: Record<Role, MenuItem[]> = {
     { label: "Inventario", icon: Inventory2OutlinedIcon, path: "/inventory" },
   ],
   Paciente: [
-    { label: "Inicio", icon: DashboardIcon, path: "/dashboard" },
-    { label: "Mi esquema", icon: VerifiedOutlinedIcon, path: "/schema" },
-    { label: "Próximas citas", icon: CalendarMonthIcon, path: "/appointments" },
-    { label: "Historial", icon: DescriptionOutlinedIcon, path: "/history" },
-    { label: "Certificado", icon: FactCheckOutlinedIcon, path: "/certificate" },
+    { label: "Mi estado", icon: DashboardIcon, path: "/dashboard" },
+    { label: "Mis citas", icon: CalendarMonthIcon, path: "/appointments" },
+    { label: "Historial", icon: DescriptionOutlinedIcon, path: "/history" }
   ],
 };
