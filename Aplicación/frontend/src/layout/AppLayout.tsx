@@ -54,12 +54,9 @@ export default function AppLayout() {
 
   return (
     <AppShell
-        title="Sistema de Vacunación"
-        subtitle="Gestión de vacunación y seguimiento de pacientes"
         role={role}
         userName={userName}
         menuItems={sidebarConfig[role]}
-        activeItemLabel="Dashboard"
         drawerWidth={collapsed ? 96 : 288}
         collapsed={collapsed}
         onToggleCollapsed={() =>

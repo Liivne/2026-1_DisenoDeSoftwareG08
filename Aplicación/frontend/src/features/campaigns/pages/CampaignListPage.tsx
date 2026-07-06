@@ -1,67 +1,54 @@
-import {
-  Box,
-  Button,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
-  InputAdornment,
-} from "@mui/material";
-
-import AddIcon from "@mui/icons-material/Add";
-import SearchIcon from "@mui/icons-material/Search";
-import FilterListIcon from "@mui/icons-material/FilterList";
+import { useMemo, useState } from "react";
+import { Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+
+import CampaignToolbar from "../components/CampaignToolbar";
 import CampaignTable from "../components/CampaignTable";
+
+import { mockCampaigns } from "../data/mockCampaigns";
 
 export default function CampaignListPage() {
   const navigate = useNavigate();
 
+  const [search, setSearch] = useState("");
+
+  const filteredCampaigns = useMemo(() => {
+    if (!search.trim()) {
+      return mockCampaigns;
+    }
+
+    const value = search.toLowerCase();
+
+    return mockCampaigns.filter(
+      (campaign) =>
+        campaign.name.toLowerCase().includes(value) ||
+        campaign.responsible.toLowerCase().includes(value) ||
+        campaign.vaccine.toLowerCase().includes(value)
+    );
+  }, [search]);
+
   return (
-    <Box p={4}>
-      <Typography variant="h4" mb={3}>
+    <Box>
+      <Typography
+        variant="h4"
+        sx={{
+          mb: 3,
+          fontWeight: 700,
+        }}
+      >
         Gestión de Campañas
       </Typography>
 
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        mb={3}
-      >
-        <Stack direction="row" spacing={2}>
-          <TextField
-            placeholder="Buscar campañas..."
-            size="small"
-            sx={{ width: 320 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
+      <CampaignToolbar
+        search={search}
+        onSearchChange={setSearch}
+        onFilter={() => console.log("Abrir filtros")}
+        onCreate={() => navigate("/campaigns/new")}
+      />
 
-          <Button
-            variant="outlined"
-            startIcon={<FilterListIcon />}
-          >
-            Filtrar
-          </Button>
-        </Stack>
-
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => navigate("/campaigns/new")}
-        >
-          Nueva Campaña
-        </Button>
-      </Stack>
-
-      <Paper>
-        <CampaignTable />
-      </Paper>
+      <CampaignTable
+        campaigns={filteredCampaigns}
+      />
     </Box>
   );
 }

@@ -9,30 +9,30 @@ import VaccinesIcon from "@mui/icons-material/Vaccines";
 import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
 
 import type { Role } from "@/shared/types/role";
-import type { MenuItem } from "../../../shared/config/menu";
+import type { MenuItem } from "./menu";
 
 export const sidebarConfig: Record<Role, MenuItem[]> = {
   Administrador: [
-    { label: "Inicio", icon: DashboardIcon },
-    { label: "Campañas", icon: CampaignOutlinedIcon },
-    { label: "Usuarios", icon: GroupIcon },
-    { label: "Vacunas", icon: VaccinesIcon },
-    { label: "Inventario", icon: Inventory2OutlinedIcon },
-    { label: "Reportes", icon: FactCheckOutlinedIcon },
+    { label: "Inicio", icon: DashboardIcon, path: "/dashboard" },
+    { label: "Campañas", icon: CampaignOutlinedIcon, path: "/campaigns" },
+    { label: "Usuarios", icon: GroupIcon, path: "/users" },
+    { label: "Vacunas", icon: VaccinesIcon, path: "/vaccines" },
+    { label: "Inventario", icon: Inventory2OutlinedIcon, path: "/inventory" },
+    { label: "Reportes", icon: FactCheckOutlinedIcon, path: "/reports" },
   ],
   "Personal de Salud": [
-    { label: "Inicio", icon: DashboardIcon },
-    { label: "Agenda", icon: CalendarMonthIcon },
-    { label: "Pacientes", icon: GroupIcon },
-    { label: "Vacunación", icon: VaccinesIcon },
-    { label: "Historial", icon: DescriptionOutlinedIcon },
-    { label: "Inventario", icon: Inventory2OutlinedIcon },
+    { label: "Inicio", icon: DashboardIcon, path: "/dashboard" },
+    { label: "Agenda", icon: CalendarMonthIcon, path: "/agenda" },
+    { label: "Pacientes", icon: GroupIcon, path: "/patients" },
+    { label: "Vacunación", icon: VaccinesIcon, path: "/vaccination" },
+    { label: "Historial", icon: DescriptionOutlinedIcon, path: "/history" },
+    { label: "Inventario", icon: Inventory2OutlinedIcon, path: "/inventory" },
   ],
   Paciente: [
-    { label: "Inicio", icon: DashboardIcon },
-    { label: "Mi esquema", icon: VerifiedOutlinedIcon },
-    { label: "Próximas citas", icon: CalendarMonthIcon },
-    { label: "Historial", icon: DescriptionOutlinedIcon },
-    { label: "Certificado", icon: FactCheckOutlinedIcon },
+    { label: "Inicio", icon: DashboardIcon, path: "/dashboard" },
+    { label: "Mi esquema", icon: VerifiedOutlinedIcon, path: "/schema" },
+    { label: "Próximas citas", icon: CalendarMonthIcon, path: "/appointments" },
+    { label: "Historial", icon: DescriptionOutlinedIcon, path: "/history" },
+    { label: "Certificado", icon: FactCheckOutlinedIcon, path: "/certificate" },
   ],
 };

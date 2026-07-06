@@ -1,81 +1,143 @@
 import {
-  Chip,
-  IconButton,
+  Pagination,
+  Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
 
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import CampaignStatusChip from "./CampaignStatusChip";
+import CampaignActions from "./CampaignActions";
+import { Campaign } from "../types/campaign";
 
-const campaigns = [
-  {
-    nombre: "Campaña COVID-19 Bivalente",
-    inicio: "2025-04-01",
-    termino: "2025-06-30",
-    estado: "Activa",
-    responsable: "Dra. Ana Martínez",
-    vacuna: "Moderna",
-  },
-  {
-    nombre: "Vacunación Influenza 2025",
-    inicio: "2025-03-15",
-    termino: "2025-05-31",
-    estado: "Activa",
-    responsable: "Dr. Carlos Reyes",
-    vacuna: "Influvac",
-  },
-];
+interface CampaignTableProps {
+  campaigns: Campaign[];
+}
 
-export default function CampaignTable() {
+export default function CampaignTable({
+  campaigns,
+}: CampaignTableProps) {
   return (
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableCell>Nombre</TableCell>
-          <TableCell>Inicio</TableCell>
-          <TableCell>Término</TableCell>
-          <TableCell>Estado</TableCell>
-          <TableCell>Responsable</TableCell>
-          <TableCell>Vacuna</TableCell>
-          <TableCell />
-        </TableRow>
-      </TableHead>
+    <TableContainer
+      component={Paper}
+      sx={{
+        borderRadius: 4,
+        boxShadow: 2,
+      }}
+    >
+      <Table>
 
-      <TableBody>
-        {campaigns.map((c) => (
-          <TableRow key={c.nombre}>
-            <TableCell>{c.nombre}</TableCell>
-            <TableCell>{c.inicio}</TableCell>
-            <TableCell>{c.termino}</TableCell>
+        <TableHead>
 
-            <TableCell>
-              <Chip
-                label={c.estado}
-                color={c.estado === "Activa" ? "success" : "primary"}
-                size="small"
-              />
+          <TableRow>
+
+            <TableCell sx={{ fontWeight: 700 }}>
+              Nombre
             </TableCell>
 
-            <TableCell>{c.responsable}</TableCell>
-
-            <TableCell>{c.vacuna}</TableCell>
-
-            <TableCell align="right">
-              <IconButton>
-                <EditIcon />
-              </IconButton>
-
-              <IconButton color="error">
-                <DeleteOutlineIcon />
-              </IconButton>
+            <TableCell sx={{ fontWeight: 700 }}>
+              Fecha Inicio
             </TableCell>
+
+            <TableCell sx={{ fontWeight: 700 }}>
+              Fecha Término
+            </TableCell>
+
+            <TableCell sx={{ fontWeight: 700 }}>
+              Estado
+            </TableCell>
+
+            <TableCell sx={{ fontWeight: 700 }}>
+              Responsable
+            </TableCell>
+
+            <TableCell sx={{ fontWeight: 700 }}>
+              Vacuna
+            </TableCell>
+
+            <TableCell />
+
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+
+        </TableHead>
+
+        <TableBody>
+
+          {campaigns.map((campaign) => (
+
+            <TableRow
+              hover
+              key={campaign.id}
+            >
+
+              <TableCell>
+                {campaign.name}
+              </TableCell>
+
+              <TableCell>
+                {campaign.startDate}
+              </TableCell>
+
+              <TableCell>
+                {campaign.endDate}
+              </TableCell>
+
+              <TableCell>
+                <CampaignStatusChip
+                  status={campaign.status}
+                />
+              </TableCell>
+
+              <TableCell>
+                {campaign.responsible}
+              </TableCell>
+
+              <TableCell>
+                {campaign.vaccine}
+              </TableCell>
+
+              <TableCell
+                align="right"
+              >
+                <CampaignActions />
+              </TableCell>
+
+            </TableRow>
+
+          ))}
+
+        </TableBody>
+
+      </Table>
+
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{
+          px: 3,
+          py: 2,
+        }}
+      >
+        <Typography
+          variant="body2"
+          color="text.secondary"
+        >
+          {campaigns.length} de {campaigns.length} campañas
+        </Typography>
+
+        <Pagination
+          page={1}
+          count={3}
+          color="primary"
+        />
+      </Stack>
+
+    </TableContainer>
   );
 }

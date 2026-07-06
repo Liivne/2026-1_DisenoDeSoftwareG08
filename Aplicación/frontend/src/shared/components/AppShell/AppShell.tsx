@@ -4,65 +4,65 @@ import {
   Badge,
   Box,
   Button,
+  ButtonBase,
   Chip,
   Divider,
   Drawer,
-  Paper,
   IconButton,
-  ButtonBase,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
   Menu,
   MenuItem,
+  Paper,
   Stack,
   Toolbar,
-  Tooltip,
   Typography,
-  useMediaQuery,
   useTheme,
 } from "@mui/material";
+
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import LogoutIcon from "@mui/icons-material/Logout";
 import VaccinesIcon from "@mui/icons-material/Vaccines";
 import KeyboardArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardArrowLeftOutlined";
 import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
 
-import { MenuItem as SidebarItem} from "../../config/menu";
+import { useLocation, useNavigate } from "react-router-dom";
 
-export type DashboardShellProps = {
-  title: string;
-  subtitle: string;
+import type { MenuItem as SidebarItem } from "../../config/menu";
+
+export interface AppShellProps {
   role: string;
   userName: string;
   menuItems: SidebarItem[];
-  activeItemLabel: string;
   drawerWidth: number;
   collapsed: boolean;
   onToggleCollapsed: () => void;
   onLogout: () => void;
   children: React.ReactNode;
-};
+}
 
-export default function DashboardShell({
-  title,
-  subtitle,
+export default function AppShell({
   role,
   userName,
   menuItems,
-  activeItemLabel,
   drawerWidth,
   collapsed,
   onToggleCollapsed,
   onLogout,
   children,
-}: DashboardShellProps) {
+}: AppShellProps) {
   const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [profileMenuAnchor, setProfileMenuAnchor] = useState<null | HTMLElement>(null);
-  const [expandedContentVisible, setExpandedContentVisible] = useState(!collapsed);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [profileMenuAnchor, setProfileMenuAnchor] =
+    useState<null | HTMLElement>(null);
+
+  const [expandedContentVisible, setExpandedContentVisible] =
+    useState(!collapsed);
 
   useEffect(() => {
     if (collapsed) {
@@ -70,12 +70,13 @@ export default function DashboardShell({
     }
   }, [collapsed]);
 
-  const showExpandedContent = !collapsed && expandedContentVisible;
+  const showExpandedContent =
+    !collapsed && expandedContentVisible;
 
-  function handleDrawerTransitionEnd(event: React.TransitionEvent<HTMLDivElement>) {
-    if (event.propertyName !== "width") {
-      return;
-    }
+  function handleDrawerTransitionEnd(
+    event: React.TransitionEvent<HTMLDivElement>
+  ) {
+    if (event.propertyName !== "width") return;
 
     if (!collapsed) {
       setExpandedContentVisible(true);
@@ -83,18 +84,26 @@ export default function DashboardShell({
   }
 
   const drawerContent = (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column", bgcolor: "background.paper" }}>
+    <Box
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        bgcolor: "background.paper",
+      }}
+    >
       <Box
         sx={{
           px: 3,
           py: 2.5,
           minHeight: 72,
-          transition: theme.transitions.create(["padding"], {
-            duration: theme.transitions.duration.shorter,
-          }),
         }}
       >
-        <Stack direction="row" spacing={1.5} alignItems="center" justifyContent="flex-start">
+        <Stack
+          direction="row"
+          spacing={1.5}
+          alignItems="center"
+        >
           <Box
             sx={{
               width: 44,
@@ -104,18 +113,25 @@ export default function DashboardShell({
               placeItems: "center",
               bgcolor: "primary.main",
               color: "primary.contrastText",
-              boxShadow: "0 12px 24px rgba(21,101,192,0.24)",
             }}
           >
             <VaccinesIcon />
           </Box>
+
           {showExpandedContent && (
             <Box>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, lineHeight: 1.1 }}>
+              <Typography
+                variant="subtitle1"
+                fontWeight={800}
+              >
                 VacunaGest
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Campañas y seguimiento
+
+              <Typography
+                variant="body2"
+                color="text.secondary"
+              >
+                Sistema de vacunación
               </Typography>
             </Box>
           )}
@@ -126,44 +142,37 @@ export default function DashboardShell({
 
       <List
         sx={{
+          flex: 1,
           px: 1.5,
           py: 1.5,
-          flex: 1,
-          transition: theme.transitions.create(["padding"], {
-            duration: theme.transitions.duration.shorter,
-          }),
         }}
       >
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const active = item.label === activeItemLabel;
+
+          const active =
+            location.pathname === item.path;
 
           return (
             <ListItemButton
               key={item.label}
+              selected={active}
+              onClick={() => navigate(item.path)}
               sx={{
-                minHeight: 48,
-                px: 1.5,
-                justifyContent: "flex-start",
+                mb: 0.5,
                 borderRadius: 2,
-                transition: theme.transitions.create(["background-color"], {
-                  duration: theme.transitions.duration.shorter,
-                }),
+                minHeight: 48,
               }}
             >
               <ListItemIcon
                 sx={{
                   minWidth: 40,
-                  width: 40,
-                  height: 40,
-                  color: active ? "primary.main" : "text.secondary",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  flexShrink: 0,
-                  mr: 0,
+                  color: active
+                    ? "primary.main"
+                    : "text.secondary",
                 }}
               >
-                <Icon sx={{ fontSize: 24 }} />
+                <Icon />
               </ListItemIcon>
 
               {showExpandedContent && (
@@ -176,45 +185,27 @@ export default function DashboardShell({
         })}
       </List>
 
+      <Divider />
+
+      <Box p={2}>
         <Button
           fullWidth
           variant="outlined"
           onClick={onToggleCollapsed}
-          sx={{
-            justifyContent: "flex-start",
-            px: 3,
-            gap: 1,
-          }}
+          startIcon={
+            showExpandedContent
+              ? <KeyboardArrowLeftOutlinedIcon />
+              : <KeyboardArrowRightOutlinedIcon />
+          }
         >
-          <Box
-            sx={{
-              width: 24,
-              height: 24,
-              display: "grid",
-              placeItems: "center",
-              flexShrink: 0,
-            }}
-          >
-            {showExpandedContent ? <KeyboardArrowLeftOutlinedIcon /> : <KeyboardArrowRightOutlinedIcon />}
-          </Box>
-
-          <Box
-            sx={{
-              flex: 1,
-              textAlign: "left",
-              opacity: showExpandedContent ? 1 : 0,
-              transition: theme.transitions.create(["opacity"], {
-                duration: theme.transitions.duration.shorter,
-              }),
-            }}
-          >
-            Contraer menú
-          </Box>
+          {showExpandedContent
+            ? "Contraer menú"
+            : ""}
         </Button>
+      </Box>
     </Box>
   );
-
-  const mobileBottomBar = (
+    const mobileBottomBar = (
     <Paper
       elevation={10}
       sx={{
@@ -223,7 +214,7 @@ export default function DashboardShell({
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: (muiTheme) => muiTheme.zIndex.appBar + 1,
+        zIndex: (theme) => theme.zIndex.appBar + 1,
         borderTop: 1,
         borderColor: "divider",
         borderRadius: "18px 18px 0 0",
@@ -243,11 +234,14 @@ export default function DashboardShell({
       >
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const active = item.label === activeItemLabel;
+
+          const active =
+            location.pathname === item.path;
 
           return (
             <ButtonBase
               key={item.label}
+              onClick={() => navigate(item.path)}
               sx={{
                 minHeight: 60,
                 borderRadius: 3,
@@ -256,34 +250,20 @@ export default function DashboardShell({
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 0.5,
-                color: active ? "primary.main" : "text.secondary",
-                bgcolor: active ? "rgba(21,101,192,0.08)" : "transparent",
-                transition: theme.transitions.create(["background-color", "color"], {
-                  duration: theme.transitions.duration.shorter,
-                }),
+                color: active
+                  ? "primary.main"
+                  : "text.secondary",
+                bgcolor: active
+                  ? "rgba(21,101,192,0.08)"
+                  : "transparent",
               }}
             >
-              <Box
-                sx={{
-                  width: 24,
-                  height: 24,
-                  display: "grid",
-                  placeItems: "center",
-                  flexShrink: 0,
-                }}
-              >
-                <Icon sx={{ fontSize: 24 }} />
-              </Box>
+              <Icon fontSize="small" />
+
               <Typography
                 variant="caption"
                 sx={{
-                  lineHeight: 1,
                   fontWeight: active ? 700 : 500,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  width: "100%",
-                  textAlign: "center",
                 }}
               >
                 {item.label}
@@ -296,106 +276,168 @@ export default function DashboardShell({
   );
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "#F4F7FB", display: "flex" }}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        bgcolor: "#F4F7FB",
+      }}
+    >
       <Box
         component="nav"
         sx={{
           display: { xs: "none", md: "block" },
-          width: { md: drawerWidth },
-          flexShrink: { md: 0 },
-          transition: theme.transitions.create(["width"], {
-            duration: theme.transitions.duration.shorter,
-          }),
+          width: drawerWidth,
+          flexShrink: 0,
+          transition: theme.transitions.create(
+            "width"
+          ),
         }}
       >
         <Drawer
           variant="permanent"
+          PaperProps={{
+            onTransitionEnd:
+              handleDrawerTransitionEnd,
+          }}
           sx={{
             "& .MuiDrawer-paper": {
               width: drawerWidth,
               boxSizing: "border-box",
+              overflowX: "hidden",
               borderRight: 1,
               borderColor: "divider",
-              backgroundImage: "linear-gradient(180deg, #FFFFFF 0%, #F7FBFE 100%)",
-              transition: theme.transitions.create("width", { duration: theme.transitions.duration.shorter }),
-              overflowX: "hidden",
+              transition:
+                theme.transitions.create("width"),
             },
           }}
-          PaperProps={{ onTransitionEnd: handleDrawerTransitionEnd }}
         >
           {drawerContent}
         </Drawer>
       </Box>
 
-      <Box sx={{ flex: 1, minWidth: 0 }}>
+      <Box
+        sx={{
+          flex: 1,
+          minWidth: 0,
+        }}
+      >
         <Box
           sx={{
             position: "sticky",
             top: 0,
-            zIndex: (muiTheme) => muiTheme.zIndex.appBar,
-            backdropFilter: "blur(14px)",
-            backgroundColor: "rgba(244,247,251,0.88)",
+            zIndex: theme.zIndex.appBar,
+            backdropFilter: "blur(16px)",
+            backgroundColor:
+              "rgba(244,247,251,0.88)",
             borderBottom: 1,
             borderColor: "divider",
           }}
         >
-          <Toolbar sx={{ px: { xs: 2, md: 3 }, minHeight: 72, gap: 2 }}>
-            <Box sx={{ minWidth: 0, flex: 1 }}>
-              <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.1 }}>
-                {title}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ display: { xs: "none", sm: "block" } }}>
-                {subtitle}
-              </Typography>
-            </Box>
+          <Toolbar
+            sx={{
+              minHeight: 72,
+              px: 3,
+            }}
+          >
+            <Box sx={{ flex: 1 }} />
 
-            <Stack direction="row" spacing={1.5} alignItems="center">
-              <Badge color="error" variant="dot" overlap="circular">
-                <IconButton aria-label="Notificaciones" sx={{ bgcolor: "white", border: 1, borderColor: "divider" }}>
+            <Stack
+              direction="row"
+              spacing={1.5}
+              alignItems="center"
+            >
+              <Badge
+                color="error"
+                variant="dot"
+              >
+                <IconButton
+                  sx={{
+                    bgcolor: "white",
+                    border: 1,
+                    borderColor: "divider",
+                  }}
+                >
                   <NotificationsNoneIcon />
                 </IconButton>
               </Badge>
 
               <Button
-                onClick={(event) => setProfileMenuAnchor(event.currentTarget)}
+                onClick={(event) =>
+                  setProfileMenuAnchor(
+                    event.currentTarget
+                  )
+                }
                 sx={{
-                  p: 0.5,
+                  bgcolor: "white",
                   border: 1,
                   borderColor: "divider",
-                  bgcolor: "white",
+                  textTransform: "none",
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
-                  pl: 0.5,
-                  pr: 1.5
+                  px: 1,
+                  py: 0.5,
                 }}
               >
-                <Avatar sx={{ bgcolor: "primary.main", width: 38, height: 38}}>
-                  {userName.charAt(0).toUpperCase()}
+                <Avatar
+                  sx={{
+                    bgcolor: "primary.main",
+                    width: 38,
+                    height: 38,
+                  }}
+                >
+                  {userName
+                    .charAt(0)
+                    .toUpperCase()}
                 </Avatar>
 
-                <Box sx={{
-                  display: { xs: "none", sm: "flex"},
-                  flexDirection: "column",
-                  alignItems: "flex-start"
-                }}
-              >
-                <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.1}}>
-                  {userName}
-                </Typography>
+                <Box
+                  sx={{
+                    display: {
+                      xs: "none",
+                      sm: "flex",
+                    },
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    fontWeight={700}
+                  >
+                    {userName}
+                  </Typography>
 
-                <Chip
-                  size="small"
-                  label={role}
-                  sx={{ height: 20, mt: 0.25}}
-                />
-              </Box>
+                  <Chip
+                    label={role}
+                    size="small"
+                    sx={{
+                      mt: 0.25,
+                    }}
+                  />
+                </Box>
               </Button>
             </Stack>
           </Toolbar>
         </Box>
 
-        <Box sx={{ p: { xs: 2, md: 3 }, pb: { xs: 11, md: 3 }, maxWidth: 1600, mx: "auto" }}>{children}</Box>
+        <Box
+          sx={{
+            p: {
+              xs: 2,
+              md: 3,
+            },
+            pb: {
+              xs: 11,
+              md: 3,
+            },
+            maxWidth: 1600,
+            mx: "auto",
+          }}
+        >
+          {children}
+        </Box>
       </Box>
 
       {mobileBottomBar}
@@ -403,23 +445,52 @@ export default function DashboardShell({
       <Menu
         anchorEl={profileMenuAnchor}
         open={Boolean(profileMenuAnchor)}
-        onClose={() => setProfileMenuAnchor(null)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        onClose={() =>
+          setProfileMenuAnchor(null)
+        }
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
       >
-        <MenuItem onClick={() => setProfileMenuAnchor(null)}>Perfil</MenuItem>
-        <MenuItem onClick={() => setProfileMenuAnchor(null)}>Configuración</MenuItem>
-        <Divider/>
         <MenuItem
+          onClick={() =>
+            setProfileMenuAnchor(null)
+          }
+        >
+          Perfil
+        </MenuItem>
+
+        <MenuItem
+          onClick={() =>
+            setProfileMenuAnchor(null)
+          }
+        >
+          Configuración
+        </MenuItem>
+
+        <Divider />
+
+        <MenuItem
+          sx={{
+            color: "error.main",
+          }}
           onClick={() => {
             setProfileMenuAnchor(null);
             onLogout();
           }}
-          sx={{ color: "error.main"}}
         >
           <ListItemIcon>
-            <LogoutIcon fontSize="small" color="error"/>
+            <LogoutIcon
+              color="error"
+              fontSize="small"
+            />
           </ListItemIcon>
+
           Cerrar sesión
         </MenuItem>
       </Menu>
