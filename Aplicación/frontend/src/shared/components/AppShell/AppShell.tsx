@@ -29,7 +29,7 @@ import VaccinesIcon from "@mui/icons-material/Vaccines";
 import KeyboardArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardArrowLeftOutlined";
 import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
 
-import { MenuItem as SidebarItem, Role } from "../types";
+import { MenuItem as SidebarItem} from "../../config/menu";
 
 export type DashboardShellProps = {
   title: string;

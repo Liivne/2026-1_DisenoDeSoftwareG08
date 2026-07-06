@@ -1,17 +1,23 @@
-import type { StatCard, SecondaryCard } from "./cards";
-import type { TableRowItem } from "./table";
+import { ChartData } from "./chart";
+import { MetricCardData } from "./metricCard";
+import { DashboardStat } from "./stat";
+import { DashboardTableRow } from "./table";
 
-export interface RoleDashboard {
-    title: string;
-    subtitle: string;
-    stats: StatCard[];
-    alerts: string[];
-    quickActions: string[];
-    chartTitle: string;
-    chartLegend: string;
-    chartData: { label: string; value: number; color: string }[];
-    tableTitle: string;
-    tableHead: string[];
-    tableRows: TableRowItem[];
-    secondaryCards: SecondaryCard[];
+export interface DashboardData {
+  title: string;
+  subtitle: string;
+
+  stats: DashboardStat[];
+
+  chartTitle: string;
+  chartSubtitle: string;
+  chartData: ChartData[];
+
+  metrics: MetricCardData[];
+
+  tableTitle: string;
+  tableHead: string[];
+  tableRows: DashboardTableRow[];
+
+  alerts: string[];
 }

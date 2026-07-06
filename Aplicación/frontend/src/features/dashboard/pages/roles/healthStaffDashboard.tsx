@@ -1,46 +1,113 @@
-import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
-import MedicalInformationOutlinedIcon from "@mui/icons-material/MedicalInformationOutlined";
-import VaccinesIcon from "@mui/icons-material/Vaccines";
-import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
+import { Icon, Stack } from "@mui/material";
 
-import { RoleDashboard } from "../../types";
+import DashboardHero from "../../components/DashboardHero";
+import { DashboardStats } from "../../components/DashboardStats";
+import DashboardChart from "../../components/DashboardChart";
+import { DashboardData } from "../../types";
 
-export const healthStaffDashboard: RoleDashboard = {
-  title: "Agenda y atención del día",
-  subtitle: "Flujo clínico enfocado en pacientes programados, vacunación y consulta rápida de historial.",
+const dashboard: DashboardData = {
+  title: "Panel del Personal de Salud",
+
+  subtitle:
+    "Monitoreo diario de pacientes, vacunaciones y agenda clínica.",
+
   stats: [
-    { label: "Pacientes programados", value: "38", delta: "12 en espera", tone: "primary", icon: <CalendarMonthIcon /> },
-    { label: "Vacunaciones realizadas", value: "27", delta: "+5 desde las 8:00", tone: "success", icon: <VaccinesIcon /> },
-    { label: "Consulta de historiales", value: "16", delta: "Documentación completa", tone: "info", icon: <MedicalInformationOutlinedIcon /> },
-    { label: "Stock disponible", value: "214 dosis", delta: "Cobertura para 2 jornadas", tone: "warning", icon: <Inventory2OutlinedIcon /> },
+    {
+      label: "Pacientes agendados",
+      value: "48",
+      delta: "+6 hoy",
+      tone: "primary",
+      icon: <Icon />,
+    },
+    {
+      label: "Vacunas aplicadas",
+      value: "36",
+      delta: "75% completado",
+      tone: "success",
+      icon: <Icon />,
+    },
+    {
+      label: "Citas pendientes",
+      value: "12",
+      delta: "Turno tarde",
+      tone: "warning",
+      icon: <Icon />,
+    },
+    {
+      label: "Stock disponible",
+      value: "320",
+      delta: "Sin incidencias",
+      tone: "info",
+      icon: <Icon />,
+    },
   ],
-  alerts: [
-    "4 pacientes requieren validación de consentimiento antes de vacunarse.",
-    "El lote de refuerzo pediátrico debe reponerse al final de la jornada.",
-    "Hay 2 citas con hora de ingreso vencida.",
-  ],
-  quickActions: ["Registrar vacunación", "Consultar historial", "Validar consentimiento", "Ver agenda"],
-  chartTitle: "Distribución de atención hoy",
-  chartLegend: "Pacientes atendidos por bloque horario",
+
+  chartTitle: "Vacunaciones por día",
+
+  chartSubtitle: "Cantidad de dosis administradas durante la semana.",
+
   chartData: [
-    { label: "08h", value: 24, color: "#1565C0" },
-    { label: "10h", value: 31, color: "#26A69A" },
-    { label: "12h", value: 18, color: "#42A5F5" },
-    { label: "14h", value: 36, color: "#0D47A1" },
-    { label: "16h", value: 29, color: "#4CAF50" },
+    { label: "Lun", value: 24, color: "#1565C0" },
+    { label: "Mar", value: 32, color: "#1976D2" },
+    { label: "Mié", value: 28, color: "#26A69A" },
+    { label: "Jue", value: 35, color: "#42A5F5" },
+    { label: "Vie", value: 31, color: "#4CAF50" },
   ],
-  tableTitle: "Pacientes programados",
-  tableHead: ["Paciente", "Hora", "Acción"],
+
+  metrics: [
+    {
+      title: "Tiempo promedio",
+      value: "9 min",
+      delta: "-1 min",
+      icon: <Icon />,
+    },
+    {
+      title: "Cobertura diaria",
+      value: "82%",
+      delta: "+4%",
+      icon: <Icon />,
+    },
+  ],
+
+  tableTitle: "Próximos pacientes",
+
+  tableHead: [
+    "Paciente",
+    "Hora",
+    "Vacuna",
+  ],
+
   tableRows: [
-    { cells: ["María Pérez", "09:00", "Vacunar"] },
-    { cells: ["Luis Andrade", "10:15", "Revisar historial"] },
-    { cells: ["Ana López", "11:30", "Validar esquema"] },
+    {
+      cells: ["María Pérez", "09:30", "Influenza"],
+    },
+    {
+      cells: ["Juan Soto", "10:00", "COVID-19"],
+    },
+    {
+      cells: ["Ana Rojas", "10:30", "Hepatitis B"],
+    },
   ],
-  secondaryCards: [
-    { title: "Tasa de atención", value: "71%", helper: "Pacientes atendidos a tiempo", icon: <AccessTimeOutlinedIcon /> },
-    { title: "Vacunación segura", value: "100%", helper: "Sin incidencias reportadas", icon: <VerifiedOutlinedIcon /> },
-    { title: "Historiales listos", value: "16", helper: "Documentos actualizados", icon: <MedicalInformationOutlinedIcon /> },
+
+  alerts: [
+    "3 pacientes aún no confirman su asistencia.",
+    "El stock de Influenza debe revisarse antes del cierre.",
   ],
 };
+
+export default function HealthStaffDashboard() {
+  return (
+    <Stack spacing={3}>
+      <DashboardHero
+        title={dashboard.title}
+        subtitle={dashboard.subtitle}
+      />
+
+      <DashboardStats
+        stats={dashboard.stats}
+      />
+
+      <DashboardChart />
+    </Stack>
+  );
+}

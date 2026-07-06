@@ -1,3 +1,3 @@
-export type TableRowItem = {
+export interface DashboardTableRow {
   cells: string[];
 };

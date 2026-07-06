@@ -9,7 +9,7 @@ import VaccinesIcon from "@mui/icons-material/Vaccines";
 import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
 
 import type { Role } from "@/shared/types/role";
-import type { MenuItem } from "../types/menu";
+import type { MenuItem } from "../../../shared/config/menu";
 
 export const sidebarConfig: Record<Role, MenuItem[]> = {
   Administrador: [

@@ -1,48 +1,92 @@
-import CampaignOutlinedIcon from "@mui/icons-material/CampaignOutlined";
-import GroupIcon from "@mui/icons-material/Group";
-import VaccinesIcon from "@mui/icons-material/Vaccines";
-import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
-import TrendingUpOutlinedIcon from "@mui/icons-material/TrendingUpOutlined";
-import LocalHospitalOutlinedIcon from "@mui/icons-material/LocalHospitalOutlined";
-import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
+import { Icon, Stack } from "@mui/material";
+import DashboardHero from "../../components/DashboardHero";
+import { DashboardStats } from "../../components/DashboardStats";
+import DashboardChart from "../../components/DashboardChart";
+import { DashboardData } from "../../types";
 
-import { RoleDashboard } from "../../types";
+const dashboard: DashboardData = {
 
-export const adminDashboard: RoleDashboard = {
-  title: "Vista general del sistema",
-  subtitle: "Monitoreo central de campañas, usuarios, vacunaciones y stock operativo.",
+  title: "...",
+
+  subtitle: "...",
+
   stats: [
-    { label: "Campañas activas", value: "12", delta: "+3 esta semana", tone: "primary", icon: <CampaignOutlinedIcon /> },
-    { label: "Usuarios registrados", value: "4.286", delta: "+126 nuevos", tone: "success", icon: <GroupIcon /> },
-    { label: "Vacunaciones hoy", value: "842", delta: "98% completadas", tone: "info", icon: <VaccinesIcon /> },
-    { label: "Stock crítico", value: "6 lotes", delta: "Requiere reposición", tone: "warning", icon: <Inventory2OutlinedIcon /> },
+    //mock data for the stats cards
+    {
+      label: "Total Users",
+      value: "1,234",
+      delta: "+12%",
+      tone: "primary",
+      icon: <Icon/>
+    },
+    {
+      label: "Total Revenue",
+      value: "$56,789",
+      delta: "+5%",
+      tone: "success",
+      icon: <Icon />
+    }
   ],
-  alerts: [
-    "2 campañas alcanzaron el 80% de cobertura y necesitan seguimiento.",
-    "6 lotes de vacunas presentan inventario por debajo del umbral mínimo.",
-    "Se detectaron 14 usuarios sin completar perfil clínico.",
-  ],
-  quickActions: ["Crear campaña", "Gestionar usuarios", "Ajustar stock", "Exportar reportes"],
-  chartTitle: "Tendencia de vacunaciones por semana",
-  chartLegend: "Promedio diario de dosis aplicadas",
+
+  chartTitle: "...",
+
+  chartSubtitle: "...",
+
   chartData: [
-    { label: "Lun", value: 56, color: "#1565C0" },
-    { label: "Mar", value: 72, color: "#1976D2" },
-    { label: "Mié", value: 64, color: "#26A69A" },
-    { label: "Jue", value: 84, color: "#0D47A1" },
-    { label: "Vie", value: 90, color: "#4CAF50" },
-    { label: "Sáb", value: 78, color: "#42A5F5" },
+    {
+      label: "January",
+      value: 100,
+      color: "#1565C0"
+    }
   ],
-  tableTitle: "Alertas y seguimiento operativo",
-  tableHead: ["Elemento", "Estado", "Responsable"],
+
+  metrics: [
+    {
+      title: "Metric 1",
+      value: "Value 1",
+      delta: "+10%",
+      icon: <Icon />
+    },
+    {
+      title: "Metric 2",
+      value: "Value 2",
+      delta: "-5%",
+      icon: <Icon />
+    }
+  ],
+
+  tableTitle: "...",
+
+  tableHead: [
+    // mock data for the table head
+    "Column 1",
+    "Column 2",
+    "Column 3"
+  ],
+
   tableRows: [
-    { cells: ["Campaña Influenza Norte", "En progreso", "Coordinación"] },
-    { cells: ["Vacuna BCG lote 24A", "Reposición pendiente", "Inventario"] },
-    { cells: ["Usuarios sin validación", "Pendiente", "Administración"] },
+    // mock data for the table rows
+    { cells: ["Row 1, Col 1", "Row 1, Col 2", "Row 1, Col 3"] },
+    { cells: ["Row 2, Col 1", "Row 2, Col 2", "Row 2, Col 3"] }
   ],
-  secondaryCards: [
-    { title: "Cobertura general", value: "78.4%", helper: "Meta mensual: 85%", icon: <TrendingUpOutlinedIcon /> },
-    { title: "Centros activos", value: "24", helper: "18 urbanos, 6 rurales", icon: <LocalHospitalOutlinedIcon /> },
-    { title: "Eventos críticos", value: "3", helper: "Sin interrupciones mayores", icon: <ShieldOutlinedIcon /> },
+
+  alerts: [
+    // mock data for the alerts
+    "Alert 1: This is an important alert.",
+    "Alert 2: This is another important alert."
   ],
 };
+
+export default function AdminDashboard() {
+    return (
+        <Stack spacing={3}>
+            <DashboardHero
+                title={dashboard.title}
+                subtitle={dashboard.subtitle}
+            /><DashboardStats
+                stats={dashboard.stats}
+            /><DashboardChart
+            />
+        </Stack>
+    );
+}
