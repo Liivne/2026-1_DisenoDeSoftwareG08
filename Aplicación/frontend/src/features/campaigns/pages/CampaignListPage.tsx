@@ -12,7 +12,7 @@ import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { useNavigate } from "react-router-dom";
-import CampaignTable from "./components/CampaignTable";
+import CampaignTable from "../components/CampaignTable";
 
 export default function CampaignListPage() {
   const navigate = useNavigate();
