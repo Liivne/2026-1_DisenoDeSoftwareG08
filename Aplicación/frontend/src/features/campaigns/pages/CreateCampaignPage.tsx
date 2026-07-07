@@ -1,41 +1,77 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
-  Box,
-  Button,
-  Container,
+  Alert,
   Paper,
+  Snackbar,
+  Stack,
   Typography,
 } from "@mui/material";
 
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useNavigate } from "react-router-dom";
 import CampaignForm from "../components/CampaignForm";
 
 export default function CreateCampaignPage() {
   const navigate = useNavigate();
 
+  const [successOpen, setSuccessOpen] = useState(false);
+
+  const handleCancel = () => {
+    navigate("/campaigns");
+  };
+
+  const handleCreate = () => {
+    setSuccessOpen(true);
+
+    setTimeout(() => {
+      navigate("/campaigns");
+    }, 1500);
+  };
+
   return (
-    <Container maxWidth="md">
-      <Box py={5}>
-
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate(-1)}
-          sx={{ mb: 3 }}
+    <>
+      <Stack spacing={3}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 4,
+            borderRadius: 4,
+            border: "1px solid",
+            borderColor: "divider",
+          }}
         >
-          Volver
-        </Button>
+          <Stack spacing={3}>
+            <Typography variant="h4" fontWeight={700}>
+              Nueva Campaña de Vacunación
+            </Typography>
 
-        <Paper sx={{ p: 4 }}>
-
-          <Typography variant="h4" mb={4}>
-            Nueva Campaña de Vacunación
-          </Typography>
-
-          <CampaignForm />
-
+            <CampaignForm
+              mode="create"
+              showStatus={false}
+              submitLabel="Crear campaña"
+              onCancel={handleCancel}
+              onSubmit={handleCreate}
+            />
+          </Stack>
         </Paper>
+      </Stack>
 
-      </Box>
-    </Container>
+      <Snackbar
+        open={successOpen}
+        autoHideDuration={1500}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+      >
+        <Alert
+          severity="success"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          Campaña creada correctamente.
+        </Alert>
+      </Snackbar>
+    </>
   );
 }

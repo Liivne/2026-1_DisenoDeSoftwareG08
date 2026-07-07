@@ -4,28 +4,57 @@ import { useNavigate } from "react-router-dom";
 
 import CampaignToolbar from "../components/CampaignToolbar";
 import CampaignTable from "../components/CampaignTable";
+import DeleteCampaignDialog from "../components/DeleteCampaignDialog";
 
 import { mockCampaigns } from "../data/mockCampaigns";
+import type { Campaign } from "../types/campaign";
 
 export default function CampaignListPage() {
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
+  const [campaigns, setCampaigns] = useState<Campaign[]>(mockCampaigns);
+  const [selectedCampaign, setSelectedCampaign] =
+    useState<Campaign | null>(null);
 
   const filteredCampaigns = useMemo(() => {
     if (!search.trim()) {
-      return mockCampaigns;
+      return campaigns;
     }
 
     const value = search.toLowerCase();
 
-    return mockCampaigns.filter(
+    return campaigns.filter(
       (campaign) =>
         campaign.name.toLowerCase().includes(value) ||
         campaign.responsible.toLowerCase().includes(value) ||
         campaign.vaccine.toLowerCase().includes(value)
     );
-  }, [search]);
+  }, [campaigns, search]);
+
+  const handleEditCampaign = (campaign: Campaign) => {
+    navigate(`/campaigns/${campaign.id}/edit`);
+  };
+
+  const handleDeleteCampaign = (campaign: Campaign) => {
+    setSelectedCampaign(campaign);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setSelectedCampaign(null);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!selectedCampaign) return;
+
+    setCampaigns((currentCampaigns) =>
+      currentCampaigns.filter(
+        (campaign) => campaign.id !== selectedCampaign.id
+      )
+    );
+
+    setSelectedCampaign(null);
+  };
 
   return (
     <Box>
@@ -48,6 +77,15 @@ export default function CampaignListPage() {
 
       <CampaignTable
         campaigns={filteredCampaigns}
+        onEdit={handleEditCampaign}
+        onDelete={handleDeleteCampaign}
+      />
+
+      <DeleteCampaignDialog
+        open={Boolean(selectedCampaign)}
+        campaignName={selectedCampaign?.name}
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleConfirmDelete}
       />
     </Box>
   );

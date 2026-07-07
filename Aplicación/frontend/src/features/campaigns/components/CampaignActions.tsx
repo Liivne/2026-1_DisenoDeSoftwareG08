@@ -1,16 +1,11 @@
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import { IconButton, Stack, Tooltip } from "@mui/material";
 
-import {
-  IconButton,
-  Stack,
-  Tooltip,
-} from "@mui/material";
-
-interface CampaignActionsProps {
-  onEdit?: () => void;
-  onDelete?: () => void;
-}
+type CampaignActionsProps = {
+  onEdit: () => void;
+  onDelete: () => void;
+};
 
 export default function CampaignActions({
   onEdit,
@@ -19,13 +14,16 @@ export default function CampaignActions({
   return (
     <Stack
       direction="row"
-      spacing={0.5}
-      justifyContent="center"
+      spacing={1}
+      justifyContent="flex-end"
     >
       <Tooltip title="Editar campaña">
         <IconButton
           size="small"
           onClick={onEdit}
+          sx={{
+            color: "text.secondary",
+          }}
         >
           <EditOutlinedIcon fontSize="small" />
         </IconButton>
@@ -37,7 +35,7 @@ export default function CampaignActions({
           color="error"
           onClick={onDelete}
         >
-          <DeleteOutlineOutlinedIcon fontSize="small" />
+          <DeleteOutlineIcon fontSize="small" />
         </IconButton>
       </Tooltip>
     </Stack>

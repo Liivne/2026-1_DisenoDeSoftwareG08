@@ -13,14 +13,18 @@ import {
 
 import CampaignStatusChip from "./CampaignStatusChip";
 import CampaignActions from "./CampaignActions";
-import { Campaign } from "../types/campaign";
+import type { Campaign } from "../types/campaign";
 
 interface CampaignTableProps {
   campaigns: Campaign[];
+  onEdit: (campaign: Campaign) => void;
+  onDelete: (campaign: Campaign) => void;
 }
 
 export default function CampaignTable({
   campaigns,
+  onEdit,
+  onDelete,
 }: CampaignTableProps) {
   return (
     <TableContainer
@@ -31,11 +35,8 @@ export default function CampaignTable({
       }}
     >
       <Table>
-
         <TableHead>
-
           <TableRow>
-
             <TableCell sx={{ fontWeight: 700 }}>
               Nombre
             </TableCell>
@@ -61,58 +62,35 @@ export default function CampaignTable({
             </TableCell>
 
             <TableCell />
-
           </TableRow>
-
         </TableHead>
 
         <TableBody>
-
           {campaigns.map((campaign) => (
+            <TableRow hover key={campaign.id}>
+              <TableCell>{campaign.name}</TableCell>
 
-            <TableRow
-              hover
-              key={campaign.id}
-            >
+              <TableCell>{campaign.startDate}</TableCell>
+
+              <TableCell>{campaign.endDate}</TableCell>
 
               <TableCell>
-                {campaign.name}
+                <CampaignStatusChip status={campaign.status} />
               </TableCell>
 
-              <TableCell>
-                {campaign.startDate}
-              </TableCell>
+              <TableCell>{campaign.responsible}</TableCell>
 
-              <TableCell>
-                {campaign.endDate}
-              </TableCell>
+              <TableCell>{campaign.vaccine}</TableCell>
 
-              <TableCell>
-                <CampaignStatusChip
-                  status={campaign.status}
+              <TableCell align="right">
+                <CampaignActions
+                  onEdit={() => onEdit(campaign)}
+                  onDelete={() => onDelete(campaign)}
                 />
               </TableCell>
-
-              <TableCell>
-                {campaign.responsible}
-              </TableCell>
-
-              <TableCell>
-                {campaign.vaccine}
-              </TableCell>
-
-              <TableCell
-                align="right"
-              >
-                <CampaignActions />
-              </TableCell>
-
             </TableRow>
-
           ))}
-
         </TableBody>
-
       </Table>
 
       <Stack
@@ -124,20 +102,12 @@ export default function CampaignTable({
           py: 2,
         }}
       >
-        <Typography
-          variant="body2"
-          color="text.secondary"
-        >
+        <Typography variant="body2" color="text.secondary">
           {campaigns.length} de {campaigns.length} campañas
         </Typography>
 
-        <Pagination
-          page={1}
-          count={3}
-          color="primary"
-        />
+        <Pagination page={1} count={3} color="primary" />
       </Stack>
-
     </TableContainer>
   );
 }

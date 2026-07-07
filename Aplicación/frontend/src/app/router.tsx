@@ -8,6 +8,7 @@ import AppointmentListPage from "@/features/appointments/pages/AppointmentListPa
 import CreateAppointmentPage from "@/features/appointments/pages/CreateAppointmentPage";
 import VaccinationHistoryPage from "@/features/history/pages/VaccinationHistoryPage";
 import NotificationsPage from "@/features/notifications/pages/NotificationsPage";
+import EditCampaignPage from "@/features/campaigns/pages/EditCampaignPage";
 
 export function AppRouter() {
   return (
@@ -48,6 +49,10 @@ export function AppRouter() {
         <Route
           path="/notifications"
           element={<NotificationsPage />}
+        />
+        <Route
+          path="/campaigns/:id/edit"
+          element={<EditCampaignPage />}
         />
       </Route>
     </Routes>
