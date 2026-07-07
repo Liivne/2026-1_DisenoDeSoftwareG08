@@ -16,8 +16,10 @@ enum Role {
 enum AppointmentStatus {
   PENDIENTE
   CONFIRMADA
-  CANCELADA
+  EN_PROCESO
   COMPLETADA
+  CANCELADA
+  AUSENTE
 }
 
 model User {
@@ -31,7 +33,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  appointments Cita[]
+  appointments Appointment[]
   records      VaccinationRecord[]
 }
 
@@ -59,8 +61,8 @@ model Campaign {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  vaccine      Vaccine @relation(fields: [vaccineId], references: [id])
-  appointments Cita[]
+  vaccine      Vaccine       @relation(fields: [vaccineId], references: [id])
+  appointments Appointment[]
 }
 
 model VaccinationPoint {
@@ -73,7 +75,7 @@ model VaccinationPoint {
   updatedAt DateTime @updatedAt
 
   schedules    Schedule[]
-  appointments Cita[]
+  appointments Appointment[]
 }
 
 model Schedule {
@@ -89,13 +91,14 @@ model Schedule {
   vaccinationPoint VaccinationPoint @relation(fields: [vaccinationPointId], references: [id])
 }
 
-model Cita {
+model Appointment {
   id                 Int               @id @default(autoincrement())
   userId             Int
   campaignId         Int
   vaccinationPointId Int
   appointmentDate    DateTime
   status             AppointmentStatus @default(PENDIENTE)
+  notes              String?
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
 
@@ -106,15 +109,15 @@ model Cita {
 }
 
 model VaccinationRecord {
-  id         Int      @id @default(autoincrement())
-  citaId     Int      @unique
-  userId     Int
-  vaccineId  Int
-  doseNumber Int
-  appliedAt  DateTime @default(now())
-  notes      String?
+  id            Int      @id @default(autoincrement())
+  appointmentId Int      @unique
+  userId        Int
+  vaccineId     Int
+  doseNumber    Int
+  appliedAt     DateTime @default(now())
+  notes         String?
 
-  cita    Cita    @relation(fields: [citaId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
-  vaccine Vaccine @relation(fields: [vaccineId], references: [id])
+  appointment Appointment @relation(fields: [appointmentId], references: [id])
+  user        User        @relation(fields: [userId], references: [id])
+  vaccine     Vaccine     @relation(fields: [vaccineId], references: [id])
 }

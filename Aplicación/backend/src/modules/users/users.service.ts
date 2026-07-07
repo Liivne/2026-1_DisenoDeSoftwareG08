@@ -1,29 +1,35 @@
 import bcrypt from "bcrypt";
-import usersRepository from "./users.repository.js";
 import { Role } from "@prisma/client";
 
+import usersRepository from "./users.repository.js";
+import { toUserResponse } from "./mappers/user.mappers.js";
+
 type CreateUserInput = {
-    rut: string;
-    name: string;
-    email: string;
-    password: string;
-    phone?: string;
-    role?: Role;
+  rut: string;
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  role?: Role;
 };
 
 export class UsersService {
-    async getUsers() {
-        return usersRepository.findAll();
-    }
+  async getUsers() {
+    const users = await usersRepository.findAll();
 
-    async createUser(data: CreateUserInput) {
-        const hashedPassword = await bcrypt.hash(data.password, 10);
+    return users.map(toUserResponse);
+  }
 
-        return usersRepository.create({
-        ...data,
-        password: hashedPassword,
-        });
-    }
+  async createUser(data: CreateUserInput) {
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    const user = await usersRepository.create({
+      ...data,
+      password: hashedPassword,
+    });
+
+    return toUserResponse(user);
+  }
 }
 
 export default new UsersService();
