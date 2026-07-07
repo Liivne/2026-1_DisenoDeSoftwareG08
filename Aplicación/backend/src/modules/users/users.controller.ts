@@ -1,26 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import usersService from "./users.service.js";
+import { asyncHandler } from "../../shared/utils/catchAsync.js";
 
 export class UsersController {
-    async getAll(
-        _req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
-        try {
-            const users = await usersService.getUsers();
+    getAll = asyncHandler(async (_req: Request, res: Response) => {
+        const users = await usersService.getUsers();
 
-            res.json(users);
-        } catch (error) {
-        next(error);
-        }
-    }
-
-    async create(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
+        res.json(users);
+    });
+    
+    create = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
         try {
             const user = await usersService.createUser(req.body);
 
@@ -28,7 +17,7 @@ export class UsersController {
         } catch (error) {
         next(error);
         }
-    }
+    });
 }
 
 export default new UsersController();

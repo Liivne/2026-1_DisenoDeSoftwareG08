@@ -2,9 +2,10 @@ import { NextFunction, Request, Response } from "express";
 
 import { UnauthorizedError } from "../../shared/errors/UnauthorizedError.js";
 import appointmentsService from "./appointments.service.js";
+import { asyncHandler } from "../../shared/utils/catchAsync.js";
 
 export class AppointmentsController {
-  async getMyAppointments(req: Request, res: Response, next: NextFunction) {
+  getMyAppointments = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!req.user) {
         throw new UnauthorizedError();
@@ -18,9 +19,9 @@ export class AppointmentsController {
     } catch (error) {
       next(error);
     }
-  }
+  });
 
-  async create(req: Request, res: Response, next: NextFunction) {
+  create = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!req.user) {
         throw new UnauthorizedError();
@@ -37,9 +38,9 @@ export class AppointmentsController {
     } catch (error) {
       next(error);
     }
-  }
+  });
 
-  async cancel(req: Request, res: Response, next: NextFunction) {
+  cancel = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!req.user) {
         throw new UnauthorizedError();
@@ -54,7 +55,7 @@ export class AppointmentsController {
     } catch (error) {
       next(error);
     }
-  }
+  });
 }
 
 export default new AppointmentsController();
