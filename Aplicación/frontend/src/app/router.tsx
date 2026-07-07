@@ -9,6 +9,8 @@ import CreateAppointmentPage from "@/features/appointments/pages/CreateAppointme
 import VaccinationHistoryPage from "@/features/history/pages/VaccinationHistoryPage";
 import NotificationsPage from "@/features/notifications/pages/NotificationsPage";
 import EditCampaignPage from "@/features/campaigns/pages/EditCampaignPage";
+import EditProfilePage from "@/features/profile/pages/EditProfilePage";
+import SecurityPage from "@/features/profile/pages/SecurityPage";
 
 export function AppRouter() {
   return (
@@ -53,6 +55,14 @@ export function AppRouter() {
         <Route
           path="/campaigns/:id/edit"
           element={<EditCampaignPage />}
+        />
+        <Route
+          path="/profile/edit"
+          element={<EditProfilePage />}
+        />
+        <Route
+          path="/profile/security"
+          element={<SecurityPage />}
         />
       </Route>
     </Routes>

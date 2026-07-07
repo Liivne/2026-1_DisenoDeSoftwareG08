@@ -28,6 +28,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import VaccinesIcon from "@mui/icons-material/Vaccines";
 import KeyboardArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardArrowLeftOutlined";
 import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
+import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+import LockIcon from "@mui/icons-material/Lock";
 
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -468,19 +470,33 @@ export default function AppShell({
         }}
       >
         <MenuItem
-          onClick={() =>
-            setProfileMenuAnchor(null)
-          }
+          onClick={() => {
+            setProfileMenuAnchor(null);
+            navigate("/profile/edit");
+          }}
         >
+          <ListItemIcon>
+            <PersonOutlinedIcon
+              color="inherit"
+              fontSize="small"
+            />
+          </ListItemIcon>
           Perfil
         </MenuItem>
 
         <MenuItem
-          onClick={() =>
-            setProfileMenuAnchor(null)
-          }
+          onClick={() => {
+            setProfileMenuAnchor(null),
+            navigate("/profile/security");
+          }}
         >
-          Configuración
+          <ListItemIcon>
+            <LockIcon
+              color="inherit"
+              fontSize="small"
+            />
+          </ListItemIcon>
+          Seguridad
         </MenuItem>
 
         <Divider />
