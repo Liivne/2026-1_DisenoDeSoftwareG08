@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PACIENTE
+  PERSONAL_SALUD
+  ADMINISTRADOR
+}
+
+enum AppointmentStatus {
+  PENDIENTE
+  CONFIRMADA
+  CANCELADA
+  COMPLETADA
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  rut       String   @unique
+  name      String
+  email     String   @unique
+  password  String
+  phone     String?
+  role      Role     @default(PACIENTE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  appointments Cita[]
+  records      VaccinationRecord[]
+}
+
+model Vaccine {
+  id          Int      @id @default(autoincrement())
+  name        String
+  laboratory  String?
+  description String?
+  stock       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  campaigns Campaign[]
+  records   VaccinationRecord[]
+}
+
+model Campaign {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  active      Boolean  @default(true)
+  vaccineId   Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  vaccine      Vaccine @relation(fields: [vaccineId], references: [id])
+  appointments Cita[]
+}
+
+model VaccinationPoint {
+  id        Int      @id @default(autoincrement())
+  name      String
+  address   String
+  city      String?
+  commune   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  schedules    Schedule[]
+  appointments Cita[]
+}
+
+model Schedule {
+  id                 Int      @id @default(autoincrement())
+  vaccinationPointId Int
+  dayOfWeek          Int
+  startTime          String
+  endTime            String
+  capacity           Int
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  vaccinationPoint VaccinationPoint @relation(fields: [vaccinationPointId], references: [id])
+}
+
+model Cita {
+  id                 Int               @id @default(autoincrement())
+  userId             Int
+  campaignId         Int
+  vaccinationPointId Int
+  appointmentDate    DateTime
+  status             AppointmentStatus @default(PENDIENTE)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  user             User               @relation(fields: [userId], references: [id])
+  campaign         Campaign           @relation(fields: [campaignId], references: [id])
+  vaccinationPoint VaccinationPoint   @relation(fields: [vaccinationPointId], references: [id])
+  record           VaccinationRecord?
+}
+
+model VaccinationRecord {
+  id         Int      @id @default(autoincrement())
+  citaId     Int      @unique
+  userId     Int
+  vaccineId  Int
+  doseNumber Int
+  appliedAt  DateTime @default(now())
+  notes      String?
+
+  cita    Cita    @relation(fields: [citaId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  vaccine Vaccine @relation(fields: [vaccineId], references: [id])
+}
