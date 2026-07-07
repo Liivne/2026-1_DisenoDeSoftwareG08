@@ -10,7 +10,6 @@ import VaccinationHistoryPage from "@/features/history/pages/VaccinationHistoryP
 import NotificationsPage from "@/features/notifications/pages/NotificationsPage";
 import EditCampaignPage from "@/features/campaigns/pages/EditCampaignPage";
 import EditProfilePage from "@/features/profile/pages/EditProfilePage";
-import SecurityPage from "@/features/profile/pages/SecurityPage";
 
 export function AppRouter() {
   return (
@@ -59,10 +58,6 @@ export function AppRouter() {
         <Route
           path="/profile/edit"
           element={<EditProfilePage />}
-        />
-        <Route
-          path="/profile/security"
-          element={<SecurityPage />}
         />
       </Route>
     </Routes>

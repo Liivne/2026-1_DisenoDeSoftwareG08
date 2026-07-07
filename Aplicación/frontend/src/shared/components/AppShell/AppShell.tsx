@@ -484,21 +484,6 @@ export default function AppShell({
           Perfil
         </MenuItem>
 
-        <MenuItem
-          onClick={() => {
-            setProfileMenuAnchor(null),
-            navigate("/profile/security");
-          }}
-        >
-          <ListItemIcon>
-            <LockIcon
-              color="inherit"
-              fontSize="small"
-            />
-          </ListItemIcon>
-          Seguridad
-        </MenuItem>
-
         <Divider />
 
         <MenuItem
