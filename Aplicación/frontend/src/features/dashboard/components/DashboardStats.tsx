@@ -1,21 +1,40 @@
-import { DashboardStat } from "@features/dashboard/types";
-import Stack from "@mui/material/Stack";
+import { ReactNode } from "react";
 
-interface DashboardStats {
-    stats: DashboardStat[];
-}
+import { Grid } from "@mui/material";
 
-export const DashboardStats: React.FC<DashboardStats> = ({ stats }) => {
-    return (
-        <Stack direction="row" spacing={2} justifyContent="space-between">
-            {stats.map((stat, index) => (
-                <div key={index} style={{ flex: 1, textAlign: "center" }}>
-                    <div>{stat.icon}</div>
-                    <div>{stat.label}</div>
-                    <div>{stat.value}</div>
-                    <div>{stat.delta}</div>
-                </div>
-            ))}
-        </Stack>
-    );
+import StatTile from "./StatTile";
+
+export type DashboardStat = {
+  title: string;
+  value: string | number;
+  icon?: ReactNode;
+};
+
+type DashboardStatsProps = {
+  stats: DashboardStat[];
+};
+
+export default function DashboardStats({
+  stats,
+}: DashboardStatsProps) {
+  return (
+    <Grid container spacing={2}>
+      {stats.map((stat) => (
+        <Grid
+          key={stat.title}
+          size={{
+            xs: 12,
+            sm: 6,
+            md: 3,
+          }}
+        >
+          <StatTile
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+          />
+        </Grid>
+      ))}
+    </Grid>
+  );
 }

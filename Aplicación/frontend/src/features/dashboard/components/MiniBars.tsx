@@ -1,41 +1,71 @@
-import { Box, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  LinearProgress,
+  Stack,
+  Typography,
+} from "@mui/material";
 
-export default function MiniBars({ data }: { data: { label: string; value: number; color: string }[] }) {
-  const max = Math.max(...data.map((item) => item.value));
+type MiniBarProps = {
+  label: string;
+  value: number;
+  max?: number;
+  color?:
+    | "primary"
+    | "secondary"
+    | "success"
+    | "warning"
+    | "error"
+    | "info";
+};
+
+export default function MiniBar({
+  label,
+  value,
+  max = 100,
+  color = "primary",
+}: MiniBarProps) {
+  const percentage = Math.min((value / max) * 100, 100);
 
   return (
-    <Stack direction="row" alignItems="flex-end" spacing={2} sx={{ minHeight: 220, pt: 1 }}>
-      {data.map((item) => (
-        <Stack key={item.label} spacing={1} alignItems="center" sx={{ flex: 1 }}>
-          <Box
-            sx={{
-              width: "100%",
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "center",
-              minHeight: 180,
-            }}
-          >
-            <Box
-              sx={{
-                width: "100%",
-                maxWidth: 52,
-                height: `${(item.value / max) * 100}%`,
-                minHeight: 24,
-                borderRadius: 2,
-                background: `linear-gradient(180deg, ${item.color} 0%, rgba(21,101,192,0.18) 100%)`,
-                boxShadow: "0 12px 24px rgba(21,101,192,0.12)",
-              }}
-            />
-          </Box>
-          <Typography variant="body2" color="text.secondary">
-            {item.label}
-          </Typography>
-          <Typography variant="caption" sx={{ fontWeight: 700, color: "text.primary" }}>
-            {item.value}%
-          </Typography>
-        </Stack>
-      ))}
+    <Stack spacing={1}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        <Typography
+          variant="body2"
+          color="text.secondary"
+        >
+          {label}
+        </Typography>
+
+        <Typography
+          variant="body2"
+          fontWeight={600}
+        >
+          {Math.round(percentage)}%
+        </Typography>
+      </Stack>
+
+      <LinearProgress
+        variant="determinate"
+        value={percentage}
+        color={color}
+        sx={{
+          height: 8,
+          borderRadius: 999,
+        }}
+      />
+
+      <Box>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+        >
+          {value} de {max}
+        </Typography>
+      </Box>
     </Stack>
   );
 }

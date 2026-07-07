@@ -1,51 +1,71 @@
-import { Box, Paper, Stack, Typography } from "@mui/material";
+import { ReactNode } from "react";
+
+import {
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
+
+type MetricCardProps = {
+  title: string;
+  value: string | number;
+  icon: ReactNode;
+  color?: string;
+};
 
 export default function MetricCard({
   title,
   value,
-  helper,
   icon,
-}: {
-  title: string;
-  value: string;
-  helper: string;
-  icon: React.ReactNode;
-}) {
+  color = "#1976D2",
+}: MetricCardProps) {
   return (
     <Paper
-      variant="outlined"
+      elevation={0}
       sx={{
-        borderRadius: 2,
-        p: 2.25,
-        boxShadow: "0 10px 28px rgba(15,23,42,0.05)",
+        p: 3,
+        borderRadius: 4,
+        border: "1px solid",
+        borderColor: "divider",
+        height: "100%",
+        transition: "all .2s ease",
+
+        "&:hover": {
+          boxShadow: 4,
+          transform: "translateY(-2px)",
+        },
       }}
     >
-      <Stack direction="row" spacing={2} alignItems="center">
-        <Box
+      <Stack spacing={2}>
+
+        <Stack
+          alignItems="center"
+          justifyContent="center"
           sx={{
-            width: 48,
-            height: 48,
-            borderRadius: 2,
-            display: "grid",
-            placeItems: "center",
-            bgcolor: "rgba(21,101,192,0.08)",
-            color: "primary.main",
-            flexShrink: 0,
+            width: 54,
+            height: 54,
+            borderRadius: 3,
+            bgcolor: `${color}15`,
+            color,
           }}
         >
           {icon}
-        </Box>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography variant="body2" color="text.secondary">
-            {title}
-          </Typography>
-          <Typography variant="h5" component="p">
-            {value}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {helper}
-          </Typography>
-        </Box>
+        </Stack>
+
+        <Typography
+          variant="h4"
+          fontWeight={700}
+        >
+          {value}
+        </Typography>
+
+        <Typography
+          variant="body2"
+          color="text.secondary"
+        >
+          {title}
+        </Typography>
+
       </Stack>
     </Paper>
   );
