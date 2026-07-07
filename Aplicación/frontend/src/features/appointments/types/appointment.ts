@@ -4,8 +4,7 @@ export interface Appointment {
     date: string;
     time: string;
     location: string;
-    professional: string;
     status: AppointmentStatus;
 }
 
-export type AppointmentStatus = "Pendiente" | "Confirmada" | "Cancelada";
+export type AppointmentStatus = "Planificada" | "Confirmada" | "Cancelada" | "Completada";

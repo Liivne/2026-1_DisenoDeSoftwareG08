@@ -20,7 +20,7 @@ export default function AppointmentStatusChip({
       bg: "#D8F5E5",
     },
 
-    Pendiente: {
+    Planificada: {
       color: "#B77900",
       bg: "#FFF3CD",
     },
@@ -28,6 +28,11 @@ export default function AppointmentStatusChip({
     Cancelada: {
       color: "#B91C1C",
       bg: "#FEE2E2",
+    },
+
+    Completada: {
+      color: "#1E3A8A",
+      bg: "#DBEAFE",
     },
 
   };
