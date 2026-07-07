@@ -42,6 +42,22 @@ export class UsersRepository {
             },
         });
     }
+
+    async findByEmail(email: string) {
+        return prisma.user.findUnique({
+            where: {
+            email,
+            },
+        });
+    }
+
+    async findById(id: number) {
+        return prisma.user.findUnique({
+            where: {
+            id,
+            },
+        });
+    }
 }
 
 export default new UsersRepository();
