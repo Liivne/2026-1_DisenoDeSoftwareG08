@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { Role } from "@prisma/client";
 
 import usersRepository from "./users.repository.js";
-import { toUserResponse } from "./mappers/user.mappers.js";
+import { toUserResponse } from "./mappers/user.mapper.js";
 
 type CreateUserInput = {
   rut: string;

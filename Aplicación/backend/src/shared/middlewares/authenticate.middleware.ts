@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { JwtPayload as JsonWebTokenPayload } from "jsonwebtoken";
-
 import { Role } from "@prisma/client";
+
 import { UnauthorizedError } from "../errors/UnauthorizedError.js";
 import { verifyAccessToken } from "../utils/jwt.js";
 
@@ -19,7 +19,7 @@ export function authenticate(
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    throw new UnauthorizedError("Token no proporcionado.");
+    return next(new UnauthorizedError("Token no proporcionado."));
   }
 
   const token = authHeader.split(" ")[1];
@@ -35,6 +35,6 @@ export function authenticate(
 
     next();
   } catch {
-    throw new UnauthorizedError("Token inválido o expirado.");
+    next(new UnauthorizedError("Token inválido o expirado."));
   }
 }

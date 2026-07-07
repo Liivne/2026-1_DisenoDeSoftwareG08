@@ -1,13 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import appointmentsService from "./appointments.service.js";
+
 import { UnauthorizedError } from "../../shared/errors/UnauthorizedError.js";
+import appointmentsService from "./appointments.service.js";
 
 export class AppointmentsController {
-  async getMyAppointments(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
+  async getMyAppointments(req: Request, res: Response, next: NextFunction) {
     try {
       if (!req.user) {
         throw new UnauthorizedError();
@@ -18,6 +15,42 @@ export class AppointmentsController {
       );
 
       res.json(appointments);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async create(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) {
+        throw new UnauthorizedError();
+      }
+
+      const appointment = await appointmentsService.createAppointment({
+        userId: req.user.id,
+        campaignId: req.body.campaignId,
+        vaccinationPointId: req.body.vaccinationPointId,
+        appointmentDate: req.body.appointmentDate,
+      });
+
+      res.status(201).json(appointment);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async cancel(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!req.user) {
+        throw new UnauthorizedError();
+      }
+
+      const appointment = await appointmentsService.cancelAppointment(
+        Number(req.params.id),
+        req.user.id
+      );
+
+      res.json(appointment);
     } catch (error) {
       next(error);
     }

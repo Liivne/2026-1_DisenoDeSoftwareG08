@@ -3,7 +3,7 @@ import usersController from "./users.controller.js";
 import { validate } from "../../shared/middlewares/validation.middleware.js";
 import { createUserSchema } from "./users.schema.js";
 import { authenticate } from "../../shared/middlewares/authenticate.middleware.js";
-import { Role } from "@prisma/client/wasm.js";
+import { Role } from "@prisma/client";
 import { authorize } from "../../shared/middlewares/authorize.middleware.js";
 
 const router = Router();

@@ -1,8 +1,10 @@
 import bcrypt from "bcrypt";
-import authRepository from "./auth.repository.js";
 
 import { UnauthorizedError } from "../../shared/errors/UnauthorizedError.js";
 import { generateAccessToken } from "../../shared/utils/jwt.js";
+
+import authRepository from "./auth.repository.js";
+import { toUserResponse } from "../users/mappers/user.mapper.js";
 
 export class AuthService {
   async login(email: string, password: string) {
@@ -12,31 +14,21 @@ export class AuthService {
       throw new UnauthorizedError();
     }
 
-    const passwordMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
       throw new UnauthorizedError();
     }
 
     const accessToken = generateAccessToken({
-        id: user.id,
-        email: user.email,
-        role: user.role,
+      id: user.id,
+      email: user.email,
+      role: user.role,
     });
 
     return {
-        accessToken,
-        user: {
-            id: user.id,
-            rut: user.rut,
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            role: user.role,
-        },
+      accessToken,
+      user: toUserResponse(user),
     };
   }
 }
