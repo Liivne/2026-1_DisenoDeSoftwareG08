@@ -20,6 +20,7 @@ import {
   Toolbar,
   Typography,
   useTheme,
+  Tooltip,
 } from "@mui/material";
 
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
@@ -57,6 +58,8 @@ export default function AppShell({
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  const unreadNotifications = 3;
 
   const [profileMenuAnchor, setProfileMenuAnchor] =
     useState<null | HTMLElement>(null);
@@ -347,20 +350,27 @@ export default function AppShell({
               spacing={1.5}
               alignItems="center"
             >
-              <Badge
-                color="error"
-                variant="dot"
-              >
-                <IconButton
-                  sx={{
-                    bgcolor: "white",
-                    border: 1,
-                    borderColor: "divider",
-                  }}
+              <Tooltip title="Notificaciones">
+                <Badge
+                  badgeContent={unreadNotifications}
+                  color="error"
+                  max={99}
                 >
-                  <NotificationsNoneIcon />
-                </IconButton>
-              </Badge>
+                  <IconButton
+                    onClick={() => navigate("/notifications")}
+                    sx={{
+                      bgcolor: "white",
+                      border: 1,
+                      borderColor: "divider",
+                      "&:hover": {
+                        bgcolor: "primary.main",
+                      },
+                    }}
+                  >
+                    <NotificationsNoneIcon />
+                  </IconButton>
+                </Badge>
+              </Tooltip>
 
               <Button
                 onClick={(event) =>

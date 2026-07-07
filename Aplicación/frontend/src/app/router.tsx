@@ -7,6 +7,7 @@ import CreateCampaignPage from "@/features/campaigns/pages/CreateCampaignPage";
 import AppointmentListPage from "@/features/appointments/pages/AppointmentListPage";
 import CreateAppointmentPage from "@/features/appointments/pages/CreateAppointmentPage";
 import VaccinationHistoryPage from "@/features/history/pages/VaccinationHistoryPage";
+import NotificationsPage from "@/features/notifications/pages/NotificationsPage";
 
 export function AppRouter() {
   return (
@@ -43,6 +44,10 @@ export function AppRouter() {
         <Route
           path="/history"
           element={<VaccinationHistoryPage />}
+        />
+        <Route
+          path="/notifications"
+          element={<NotificationsPage />}
         />
       </Route>
     </Routes>
