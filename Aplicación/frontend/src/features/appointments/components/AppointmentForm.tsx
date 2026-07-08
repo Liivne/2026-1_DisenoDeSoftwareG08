@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { useSnackbar } from "@/shared/context/SnackbarContext";
+import { useLoading } from "@/shared/context/LoadingContext";
 
 import {
   createAppointment,
@@ -19,7 +20,6 @@ import {
   type AppointmentCampaignOption,
   type VaccinationPointOption,
 } from "../services/appointments.service";
-import { useLoading } from "@/shared/context/LoadingContext";
 
 export default function AppointmentForm() {
   const navigate = useNavigate();
@@ -36,6 +36,7 @@ export default function AppointmentForm() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     async function loadOptions() {
@@ -59,8 +60,40 @@ export default function AppointmentForm() {
 
   const canSubmit = campaignId && vaccinationPointId && date && time;
 
+  function validate() {
+    const e: Record<string, string> = {};
+
+    if (!campaignId) {
+      e.campaignId = "Debe seleccionar una campaña.";
+    }
+
+    if (!vaccinationPointId) {
+      e.vaccinationPointId = "Debe seleccionar un centro de vacunación.";
+    }
+
+    if (!date) {
+      e.date = "Debe seleccionar una fecha.";
+    }
+
+    if (!time) {
+      e.time = "Debe seleccionar una hora.";
+    }
+
+    if (date && time) {
+      const selectedDate = new Date(`${date}T${time}:00`);
+
+      if (selectedDate <= new Date()) {
+        e.date = "La fecha y hora deben ser posteriores al momento actual.";
+      }
+    }
+
+    setErrors(e);
+
+    return Object.keys(e).length === 0;
+  }
+
   async function handleSubmit() {
-    if (!canSubmit) return;
+    if (!validate()) return;
 
     try {
       setLoading(true);
@@ -102,7 +135,12 @@ export default function AppointmentForm() {
         fullWidth
         label="Campaña / vacuna"
         value={campaignId}
-        onChange={(event) => setCampaignId(event.target.value)}
+        onChange={(event) => {
+          setCampaignId(event.target.value);
+          setErrors((current) => ({ ...current, campaignId: "" }));
+        }}
+        error={!!errors.campaignId}
+        helperText={errors.campaignId}
       >
         {campaigns.map((campaign) => (
           <MenuItem key={campaign.id} value={campaign.id}>
@@ -116,7 +154,12 @@ export default function AppointmentForm() {
         fullWidth
         label="Centro de vacunación"
         value={vaccinationPointId}
-        onChange={(event) => setVaccinationPointId(event.target.value)}
+        onChange={(event) => {
+          setVaccinationPointId(event.target.value);
+          setErrors((current) => ({ ...current, vaccinationPointId: "" }));
+        }}
+        error={!!errors.vaccinationPointId}
+        helperText={errors.vaccinationPointId}
       >
         {points.map((point) => (
           <MenuItem key={point.id} value={point.id}>
@@ -132,7 +175,12 @@ export default function AppointmentForm() {
             type="date"
             label="Fecha"
             value={date}
-            onChange={(event) => setDate(event.target.value)}
+            onChange={(event) => {
+              setDate(event.target.value);
+              setErrors((current) => ({ ...current, date: "" }));
+            }}
+            error={!!errors.date}
+            helperText={errors.date}
             InputLabelProps={{ shrink: true }}
           />
         </Grid>
@@ -143,7 +191,12 @@ export default function AppointmentForm() {
             type="time"
             label="Hora"
             value={time}
-            onChange={(event) => setTime(event.target.value)}
+            onChange={(event) => {
+              setTime(event.target.value);
+              setErrors((current) => ({ ...current, time: "" }));
+            }}
+            error={!!errors.time}
+            helperText={errors.time}
             InputLabelProps={{ shrink: true }}
           />
         </Grid>

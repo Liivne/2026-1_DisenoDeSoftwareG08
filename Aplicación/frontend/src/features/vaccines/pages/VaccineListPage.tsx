@@ -24,6 +24,12 @@ import {
 } from "../services/vaccines.service";
 import type { Vaccine } from "../types/vaccine";
 
+type VaccineFormErrors = {
+  name?: string;
+  laboratory?: string;
+  stock?: string;
+};
+
 export default function VaccineListPage() {
   const { showSuccess, showError } = useSnackbar();
 
@@ -34,6 +40,8 @@ export default function VaccineListPage() {
   const [error, setError] = useState("");
 
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [formErrors, setFormErrors] = useState<VaccineFormErrors>({});
+
   const [newVaccine, setNewVaccine] = useState({
     name: "",
     laboratory: "",
@@ -76,8 +84,37 @@ export default function VaccineListPage() {
     );
   }, [vaccines, search]);
 
+  function validateVaccineForm() {
+    const errors: VaccineFormErrors = {};
+
+    if (!newVaccine.name.trim()) {
+      errors.name = "El nombre de la vacuna es obligatorio.";
+    } else if (newVaccine.name.trim().length < 3) {
+      errors.name = "El nombre debe tener al menos 3 caracteres.";
+    }
+
+    if (!newVaccine.laboratory.trim()) {
+      errors.laboratory = "El laboratorio es obligatorio.";
+    } else if (newVaccine.laboratory.trim().length < 2) {
+      errors.laboratory = "El laboratorio debe tener al menos 2 caracteres.";
+    }
+
+    if (newVaccine.stock === "") {
+      errors.stock = "El stock es obligatorio.";
+    } else if (Number.isNaN(Number(newVaccine.stock))) {
+      errors.stock = "El stock debe ser un número válido.";
+    } else if (Number(newVaccine.stock) < 0) {
+      errors.stock = "El stock no puede ser negativo.";
+    }
+
+    setFormErrors(errors);
+
+    return Object.keys(errors).length === 0;
+  }
+
   function handleCloseDialog() {
     setDialogOpen(false);
+    setFormErrors({});
     setNewVaccine({
       name: "",
       laboratory: "",
@@ -87,17 +124,14 @@ export default function VaccineListPage() {
   }
 
   async function handleCreateVaccine() {
-    if (!newVaccine.name.trim()) {
-      showError("El nombre de la vacuna es obligatorio.");
-      return;
-    }
+    if (!validateVaccineForm()) return;
 
     try {
       setSaving(true);
 
       const created = await createVaccine({
         name: newVaccine.name.trim(),
-        laboratory: newVaccine.laboratory.trim() || undefined,
+        laboratory: newVaccine.laboratory.trim(),
         description: newVaccine.description.trim() || undefined,
         stock: Number(newVaccine.stock),
       });
@@ -176,12 +210,19 @@ export default function VaccineListPage() {
             <TextField
               label="Nombre"
               value={newVaccine.name}
-              onChange={(event) =>
+              onChange={(event) => {
                 setNewVaccine((current) => ({
                   ...current,
                   name: event.target.value,
-                }))
-              }
+                }));
+
+                setFormErrors((current) => ({
+                  ...current,
+                  name: undefined,
+                }));
+              }}
+              error={!!formErrors.name}
+              helperText={formErrors.name}
               fullWidth
               required
             />
@@ -189,13 +230,21 @@ export default function VaccineListPage() {
             <TextField
               label="Laboratorio"
               value={newVaccine.laboratory}
-              onChange={(event) =>
+              onChange={(event) => {
                 setNewVaccine((current) => ({
                   ...current,
                   laboratory: event.target.value,
-                }))
-              }
+                }));
+
+                setFormErrors((current) => ({
+                  ...current,
+                  laboratory: undefined,
+                }));
+              }}
+              error={!!formErrors.laboratory}
+              helperText={formErrors.laboratory}
               fullWidth
+              required
             />
 
             <TextField
@@ -216,13 +265,21 @@ export default function VaccineListPage() {
               label="Stock"
               type="number"
               value={newVaccine.stock}
-              onChange={(event) =>
+              onChange={(event) => {
                 setNewVaccine((current) => ({
                   ...current,
                   stock: event.target.value,
-                }))
-              }
+                }));
+
+                setFormErrors((current) => ({
+                  ...current,
+                  stock: undefined,
+                }));
+              }}
+              error={!!formErrors.stock}
+              helperText={formErrors.stock}
               fullWidth
+              required
               inputProps={{
                 min: 0,
               }}

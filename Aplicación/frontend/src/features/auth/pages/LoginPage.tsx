@@ -17,6 +17,16 @@ import { login, register } from "../services/auth.service";
 import { useAuth } from "../context/AuthContext";
 import { useSnackbar } from "@/shared/context/SnackbarContext";
 import { formatRut } from "@/shared/utils/rut";
+import {
+  isValidRut,
+} from "@/shared/utils/rut";
+
+import {
+  isValidEmail,
+  isValidPassword,
+  passwordMessage,
+  isValidChileanPhone,
+} from "@/shared/validators";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -42,24 +52,38 @@ export default function LoginPage() {
   function validate() {
     const e: Record<string, string> = {};
 
-    if (isRegister && !name.trim()) {
-      e.name = "El nombre es obligatorio";
-    }
+    if (isRegister) {
+      if (!name.trim()) {
+        e.name = "El nombre es obligatorio.";
+      } else if (name.trim().length < 3) {
+        e.name = "El nombre debe tener al menos 3 caracteres.";
+      }
 
-    if (isRegister && !rut.trim()) {
-      e.rut = "El RUT es obligatorio";
+      if (!rut.trim()) {
+        e.rut = "El RUT es obligatorio.";
+      } else if (!isValidRut(rut)) {
+        e.rut = "El RUT ingresado no es válido.";
+      }
+
+      if (!isValidChileanPhone(phone)) {
+        e.phone = "Ingrese un teléfono chileno válido.";
+      }
     }
 
     if (!email.trim()) {
-      e.email = "El correo es obligatorio";
+      e.email = "El correo es obligatorio.";
+    } else if (!isValidEmail(email)) {
+      e.email = "Ingrese un correo electrónico válido.";
     }
 
     if (!password) {
-      e.password = "La contraseña es obligatoria";
+      e.password = "La contraseña es obligatoria.";
+    } else if (isRegister && !isValidPassword(password)) {
+      e.password = passwordMessage;
     }
 
     if (isRegister && password !== confirm) {
-      e.confirm = "Las contraseñas no coinciden";
+      e.confirm = "Las contraseñas no coinciden.";
     }
 
     setErrors(e);
@@ -149,9 +173,15 @@ export default function LoginPage() {
                 fullWidth
                 label="RUT"
                 value={rut}
-                onChange={(e) =>
-                  setRut(formatRut(e.target.value))
-                }
+                onChange={(e) => {
+                  setRut(formatRut(e.target.value));
+                  if (errors.rut) {
+                    setErrors((current) => ({
+                      ...current,
+                      rut: "",
+                    }));
+                  }
+                }}
                 error={!!errors.rut}
                 helperText={errors.rut}
               />
@@ -159,10 +189,12 @@ export default function LoginPage() {
 
             {isRegister && (
               <TextField
+                fullWidth
                 label="Teléfono"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                fullWidth
+                error={!!errors.phone}
+                helperText={errors.phone}
               />
             )}
 
@@ -170,7 +202,16 @@ export default function LoginPage() {
               label="Correo electrónico"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+
+                if (errors.email) {
+                  setErrors((current) => ({
+                    ...current,
+                    email: "",
+                  }));
+                }
+              }}
               error={!!errors.email}
               helperText={errors.email}
               fullWidth
