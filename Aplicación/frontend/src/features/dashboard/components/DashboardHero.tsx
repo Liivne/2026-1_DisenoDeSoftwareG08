@@ -74,7 +74,7 @@ export default function DashboardHero({
               {details.map((detail) => (
                 <Chip
                   key={detail.label}
-                  label={`${detail.label}: ${detail.value}`}
+                  label={detail.value}
                   sx={{
                     bgcolor: "rgba(255,255,255,.18)",
                     color: "white",
@@ -84,19 +84,6 @@ export default function DashboardHero({
               ))}
             </Stack>
           )}
-
-          {badge && (
-            <Chip
-              label={badge}
-              sx={{
-                mt: 4,
-                bgcolor: "rgba(255,255,255,.18)",
-                color: "white",
-                fontWeight: 600,
-              }}
-            />
-          )}
-
         </Box>
 
         <Avatar
