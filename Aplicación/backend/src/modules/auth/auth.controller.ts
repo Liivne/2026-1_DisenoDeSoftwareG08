@@ -3,6 +3,7 @@ import { Role } from "@prisma/client";
 
 import authService from "./auth.service.js";
 import usersService from "../users/users.service.js";
+import emailService from "../../shared/services/email.service.js";
 import { asyncHandler } from "../../shared/utils/catchAsync.js";
 
 export class AuthController {
@@ -27,6 +28,9 @@ export class AuthController {
     });
 
     const user = await authService.login(email, password);
+
+    // Enviar correo de bienvenida de forma asíncrona
+    emailService.sendWelcomeEmail(email, name);
 
     res.status(201).json(user);
   });
