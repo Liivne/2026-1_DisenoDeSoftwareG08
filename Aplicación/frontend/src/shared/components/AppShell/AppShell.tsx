@@ -32,6 +32,9 @@ import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRig
 
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { useAuth } from "@/features/auth/context/AuthContext";
+import { mapApiRoleToFrontendRole } from "@/shared/utils/roleMapper";
+import { initialNotifications } from "@/features/notifications/types/notification";
 import type { MenuItem as SidebarItem } from "../../config/menu";
 
 export interface AppShellProps {
@@ -56,8 +59,15 @@ export default function AppShell({
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
 
-  const unreadNotifications = 3;
+  const currentRole = user?.role ? mapApiRoleToFrontendRole(user.role) : null;
+  const unreadNotifications = initialNotifications.filter((notification) => {
+    if (notification.status !== "unread") return false;
+    if (notification.audience === "Todos") return true;
+    if (!currentRole) return false;
+    return notification.audience === currentRole;
+  }).length;
 
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 

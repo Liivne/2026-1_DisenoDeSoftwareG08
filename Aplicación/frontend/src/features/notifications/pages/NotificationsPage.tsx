@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import {
@@ -7,75 +7,79 @@ import {
   Typography,
 } from "@mui/material";
 
+import { useAuth } from "@/features/auth/context/AuthContext";
+import { mapApiRoleToFrontendRole } from "@/shared/utils/roleMapper";
 import NotificationCard from "../components/NotificationCard";
 import NotificationFilters from "../components/NotificationFilters";
 import type {
   Notification,
   NotificationFilter,
+  NotificationRole,
 } from "../types/notification";
-
-const notifications: Notification[] = [
-  {
-    id: 1,
-    title: "Cita confirmada",
-    description: "Tu cita para la vacuna Influenza fue confirmada correctamente.",
-    date: "Hoy",
-    time: "09:30",
-    status: "unread",
-    type: "success",
-    audience: "Paciente",
-  },
-  {
-    id: 2,
-    title: "Stock bajo",
-    description: "El stock de vacuna Hepatitis B está bajo el mínimo recomendado.",
-    date: "Hoy",
-    time: "08:45",
-    status: "unread",
-    type: "error",
-    audience: "Administrador",
-  },
-  {
-    id: 3,
-    title: "Campaña actualizada",
-    description: "Se modificó la fecha de término de la campaña Influenza 2026.",
-    date: "Ayer",
-    time: "16:10",
-    status: "read",
-    type: "info",
-    audience: "Todos",
-  },
-  {
-    id: 4,
-    title: "Pacientes pendientes",
-    description: "Hay pacientes que aún no confirman su asistencia para hoy.",
-    date: "Ayer",
-    time: "11:20",
-    status: "read",
-    type: "warning",
-    audience: "Personal de Salud",
-  },
-];
+import { initialNotifications } from "../types/notification";
 
 export default function NotificationsPage() {
+  const { user } = useAuth();
   const [filter, setFilter] = useState<NotificationFilter>("all");
+  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
+
+  const currentRole = useMemo<NotificationRole | null>(() => {
+    if (!user?.role) return null;
+    return mapApiRoleToFrontendRole(user.role) as NotificationRole;
+  }, [user?.role]);
+
+  useEffect(() => {
+    setNotifications((prev) =>
+      prev.map((notification) => {
+        if (notification.status === "unread") {
+          return notification;
+        }
+        return notification;
+      }),
+    );
+  }, [currentRole]);
 
   const filteredNotifications = useMemo(() => {
+    const roleScopedNotifications = notifications.filter((notification) => {
+      if (notification.audience === "Todos") return true;
+      if (!currentRole) return false;
+
+      return notification.audience === currentRole;
+    });
+
     if (filter === "unread") {
-      return notifications.filter(
+      return roleScopedNotifications.filter(
         (notification) => notification.status === "unread",
       );
     }
 
     if (filter === "important") {
-      return notifications.filter(
+      return roleScopedNotifications.filter(
         (notification) =>
           notification.type === "warning" || notification.type === "error",
       );
     }
 
-    return notifications;
-  }, [filter]);
+    return roleScopedNotifications;
+  }, [currentRole, filter, notifications]);
+
+  const unreadCount = useMemo(() => {
+    return notifications.filter(
+      (notification) => notification.status === "unread",
+    ).length;
+  }, [notifications]);
+
+  const markAllAsRead = () => {
+    setNotifications((prev) =>
+      prev.map((notification) => ({ ...notification, status: "read" })),
+    );
+  };
+
+  useEffect(() => {
+    if (filteredNotifications.some((notification) => notification.status === "unread")) {
+      markAllAsRead();
+    }
+  }, [filteredNotifications]);
 
   return (
     <Stack spacing={3}>
@@ -120,9 +124,17 @@ export default function NotificationsPage() {
       </Paper>
 
       <Stack spacing={2}>
-        <Typography variant="h6" fontWeight={700}>
-          Resultados
-        </Typography>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Typography variant="h6" fontWeight={700}>
+            Resultados
+          </Typography>
+
+          {unreadCount > 0 && (
+            <Typography variant="body2" color="primary" fontWeight={600}>
+              {unreadCount} sin leer
+            </Typography>
+          )}
+        </Stack>
 
         {filteredNotifications.map((notification) => (
           <NotificationCard
