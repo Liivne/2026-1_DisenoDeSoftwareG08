@@ -9,7 +9,6 @@ import CreateAppointmentPage from "@/features/appointments/pages/CreateAppointme
 import VaccinationHistoryPage from "@/features/history/pages/VaccinationHistoryPage";
 import NotificationsPage from "@/features/notifications/pages/NotificationsPage";
 import EditCampaignPage from "@/features/campaigns/pages/EditCampaignPage";
-import EditProfilePage from "@/features/profile/pages/EditProfilePage";
 import VaccineListPage from "@/features/vaccines/pages/VaccineListPage";
 import UserListPage from "@/features/users/pages/UserListPage";
 import HealthAgendaPage from "@/features/agenda/pages/HealthAgendaPage";
@@ -67,7 +66,6 @@ export function AppRouter() {
           </Route>
 
           <Route path="/notifications" element={<NotificationsPage />} />
-          <Route path="/profile/edit" element={<EditProfilePage />} />
         </Route>
       </Route>
     </Routes>
