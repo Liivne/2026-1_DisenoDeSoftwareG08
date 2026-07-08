@@ -13,6 +13,21 @@ export interface LoginResponse {
   };
 }
 
+export type RegisterPayload = {
+  rut: string;
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+};
+
+export async function register(data: RegisterPayload) {
+  return apiFetch<LoginResponse>("/auth/register", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
 export async function login(
   email: string,
   password: string

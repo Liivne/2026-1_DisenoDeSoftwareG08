@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 
 import type { User, UserRole } from "../types/user";
+import { formatRut } from "@/shared/utils/rut";
 
 interface UserTableProps {
   users: User[];
@@ -45,7 +46,7 @@ export default function UserTable({ users }: UserTableProps) {
           {users.map((user) => (
             <TableRow hover key={user.id}>
               <TableCell>{user.name}</TableCell>
-              <TableCell>{user.rut}</TableCell>
+              <TableCell>{formatRut(user.rut)}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>{user.phone ?? "Sin teléfono"}</TableCell>
               <TableCell>

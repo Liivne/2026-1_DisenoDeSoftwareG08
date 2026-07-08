@@ -32,6 +32,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { mapApiRoleToFrontendRole } from "@/shared/utils/roleMapper";
+import { formatRut } from "@/shared/utils/rut";
 
 function formatTime(value: string) {
   return new Date(value).toLocaleTimeString("es-CL", {
@@ -192,7 +193,7 @@ export default function HealthStaffDashboard() {
             ? [
                 { label: "Nombre", value: user.name },
                 { label: "Correo", value: user.email },
-                { label: "RUT", value: user.rut },
+                { label: "RUT", value: formatRut(user.rut) },
                 { label: "Rol", value: mapApiRoleToFrontendRole(user.role) },
               ]
             : []

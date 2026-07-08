@@ -9,36 +9,48 @@ import {
   Typography,
   Paper,
   Stack,
-  Alert
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import { login } from "../services/auth.service";
+
+import { login, register } from "../services/auth.service";
 import { useAuth } from "../context/AuthContext";
 import { useSnackbar } from "@/shared/context/SnackbarContext";
+import { formatRut } from "@/shared/utils/rut";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+
   const { loginUser } = useAuth();
   const { showSuccess, showError } = useSnackbar();
+
   const [isRegister, setIsRegister] = useState(false);
+
   const [rut, setRut] = useState("");
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+
   const [showPassword, setShowPassword] = useState(false);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState("");
 
   function validate() {
     const e: Record<string, string> = {};
 
-    if (isRegister && !name) {
+    if (isRegister && !name.trim()) {
       e.name = "El nombre es obligatorio";
     }
 
-    if (!email) {
+    if (isRegister && !rut.trim()) {
+      e.rut = "El RUT es obligatorio";
+    }
+
+    if (!email.trim()) {
       e.email = "El correo es obligatorio";
     }
 
@@ -50,17 +62,12 @@ export default function LoginPage() {
       e.confirm = "Las contraseñas no coinciden";
     }
 
-    if (isRegister && !role) {
-      e.role = "Debe seleccionar un rol";
-    }
-
     setErrors(e);
+
     return Object.keys(e).length === 0;
   }
 
-  async function handleSubmit(
-    ev?: React.FormEvent
-  ) {
+  async function handleSubmit(ev?: React.FormEvent) {
     ev?.preventDefault();
 
     if (!validate()) {
@@ -69,24 +76,33 @@ export default function LoginPage() {
 
     setServerError("");
 
-    if (isRegister) {
-      navigate("/");
-      return;
-    }
-
     try {
-      const response = await login(email, password);
+      const response = isRegister
+        ? await register({
+            rut,
+            name,
+            email,
+            password,
+            phone: phone || undefined,
+          })
+        : await login(email, password);
 
       loginUser(response.accessToken, response.user);
 
-      showSuccess("Sesión iniciada correctamente.");
+      showSuccess(
+        isRegister
+          ? "Cuenta creada correctamente."
+          : "Sesión iniciada correctamente."
+      );
 
       navigate("/");
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : "No fue posible iniciar sesión.";
+          : isRegister
+            ? "No fue posible crear la cuenta."
+            : "No fue posible iniciar sesión.";
 
       setServerError(message);
       showError(message);
@@ -114,31 +130,14 @@ export default function LoginPage() {
         >
           <Stack spacing={2}>
             <Typography variant="h5">
-              {isRegister
-                ? "Crear cuenta"
-                : "Iniciar sesión"}
+              {isRegister ? "Crear cuenta" : "Iniciar sesión"}
             </Typography>
-
-            {serverError && <Alert severity="error">{serverError}</Alert>}
-
-            {isRegister && (
-              <TextField
-                label="RUT"
-                value={rut}
-                onChange={(e) => setRut(e.target.value)}
-                error={!!errors.rut}
-                helperText={errors.rut}
-                fullWidth
-              />
-            )}
 
             {isRegister && (
               <TextField
                 label="Nombre completo"
                 value={name}
-                onChange={(e) =>
-                  setName(e.target.value)
-                }
+                onChange={(e) => setName(e.target.value)}
                 error={!!errors.name}
                 helperText={errors.name}
                 fullWidth
@@ -146,54 +145,32 @@ export default function LoginPage() {
             )}
 
             {isRegister && (
-              <FormControl
+              <TextField
                 fullWidth
-                error={!!errors.role}
-              >
-                <InputLabel>Rol</InputLabel>
+                label="RUT"
+                value={rut}
+                onChange={(e) =>
+                  setRut(formatRut(e.target.value))
+                }
+                error={!!errors.rut}
+                helperText={errors.rut}
+              />
+            )}
 
-                <Select
-                  value={role}
-                  label="Rol"
-                  onChange={(e) =>
-                    setRole(e.target.value)
-                  }
-                >
-                  <MenuItem value="Paciente">
-                    Paciente
-                  </MenuItem>
-
-                  <MenuItem value="Personal de Salud">
-                    Personal de Salud
-                  </MenuItem>
-
-                  <MenuItem value="Administrador">
-                    Administrador
-                  </MenuItem>
-                </Select>
-
-                {!!errors.role && (
-                  <Typography
-                    variant="caption"
-                    color="error"
-                    sx={{
-                      ml: 2,
-                      mt: 0.5,
-                    }}
-                  >
-                    {errors.role}
-                  </Typography>
-                )}
-              </FormControl>
+            {isRegister && (
+              <TextField
+                label="Teléfono"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                fullWidth
+              />
             )}
 
             <TextField
               label="Correo electrónico"
               type="email"
               value={email}
-              onChange={(e) =>
-                setEmail(e.target.value)
-              }
+              onChange={(e) => setEmail(e.target.value)}
               error={!!errors.email}
               helperText={errors.email}
               fullWidth
@@ -201,15 +178,9 @@ export default function LoginPage() {
 
             <TextField
               label="Contraseña"
-              type={
-                showPassword
-                  ? "text"
-                  : "password"
-              }
+              type={showPassword ? "text" : "password"}
               value={password}
-              onChange={(e) =>
-                setPassword(e.target.value)
-              }
+              onChange={(e) => setPassword(e.target.value)}
               error={!!errors.password}
               helperText={errors.password}
               InputProps={{
@@ -217,17 +188,9 @@ export default function LoginPage() {
                   <InputAdornment position="end">
                     <IconButton
                       edge="end"
-                      onClick={() =>
-                        setShowPassword(
-                          (v) => !v
-                        )
-                      }
+                      onClick={() => setShowPassword((value) => !value)}
                     >
-                      {showPassword ? (
-                        <VisibilityOff />
-                      ) : (
-                        <Visibility />
-                      )}
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -238,69 +201,32 @@ export default function LoginPage() {
             {isRegister && (
               <TextField
                 label="Confirmar contraseña"
-                type={
-                  showPassword
-                    ? "text"
-                    : "password"
-                }
+                type={showPassword ? "text" : "password"}
                 value={confirm}
-                onChange={(e) =>
-                  setConfirm(
-                    e.target.value
-                  )
-                }
+                onChange={(e) => setConfirm(e.target.value)}
                 error={!!errors.confirm}
                 helperText={errors.confirm}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        edge="end"
-                        onClick={() =>
-                          setShowPassword(
-                            (v) => !v
-                          )
-                        }
-                      >
-                        {showPassword ? (
-                          <VisibilityOff />
-                        ) : (
-                          <Visibility />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
                 fullWidth
               />
             )}
 
             {serverError && (
-              <Typography
-                color="error"
-                variant="body2"
-              >
+              <Typography color="error" variant="body2">
                 {serverError}
               </Typography>
             )}
 
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-            >
-              {isRegister
-                ? "Crear cuenta"
-                : "Entrar"}
+            <Button type="submit" variant="contained" fullWidth>
+              {isRegister ? "Crear cuenta" : "Entrar"}
             </Button>
 
             <Button
               variant="text"
-              onClick={() =>
-                setIsRegister(
-                  (v) => !v
-                )
-              }
+              onClick={() => {
+                setIsRegister((value) => !value);
+                setErrors({});
+                setServerError("");
+              }}
             >
               {isRegister
                 ? "¿Ya tienes cuenta? Inicia sesión"

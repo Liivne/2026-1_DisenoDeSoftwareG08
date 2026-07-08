@@ -32,6 +32,7 @@ import DashboardTable from "../../components/DashboardTable";
 import MiniBar from "../../components/MiniBars";
 import { useAuth } from "@/features/auth/context/AuthContext";
 import { mapApiRoleToFrontendRole } from "@/shared/utils/roleMapper";
+import { formatRut } from "@/shared/utils/rut";
 
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString("es-CL");
@@ -178,7 +179,7 @@ export default function PatientDashboard() {
             ? [
                 { label: "Nombre", value: user.name },
                 { label: "Correo", value: user.email },
-                { label: "RUT", value: user.rut },
+                { label: "RUT", value: formatRut(user.rut) },
                 { label: "Rol", value: mapApiRoleToFrontendRole(user.role) },
               ]
             : []
