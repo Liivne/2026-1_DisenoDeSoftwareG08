@@ -70,13 +70,18 @@ export default function CampaignForm({
 
   const validate = () => {
     const newErrors: CampaignFormErrors = {};
+    const today = new Date().toISOString().split("T")[0];
 
     if (!values.name.trim()) {
       newErrors.name = "El nombre de la campaña es obligatorio.";
+    } else if (values.name.trim().length < 3) {
+      newErrors.name = "El nombre debe tener al menos 3 caracteres.";
     }
 
     if (!values.startDate) {
       newErrors.startDate = "La fecha de inicio es obligatoria.";
+    } else if (mode === "create" && values.startDate < today) {
+      newErrors.startDate = "La fecha de inicio no puede ser anterior a hoy.";
     }
 
     if (!values.endDate) {
@@ -98,6 +103,9 @@ export default function CampaignForm({
 
     if (!values.responsible.trim()) {
       newErrors.responsible = "El responsable es obligatorio.";
+    } else if (values.responsible.trim().length < 3) {
+      newErrors.responsible =
+        "El responsable debe tener al menos 3 caracteres.";
     }
 
     if (!values.status) {
