@@ -9,57 +9,62 @@ import {
   Typography,
   Paper,
   Stack,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  Alert
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import apiClient from "../../../api/client";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [isRegister, setIsRegister] = useState(false);
+  const [rut, setRut] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [serverError, setServerError] = useState("");
 
   function validate() {
     const e: Record<string, string> = {};
+    if (isRegister && !rut) e.rut = "El RUT es obligatorio";
     if (isRegister && !name) e.name = "El nombre es obligatorio";
     if (!email) e.email = "El correo es obligatorio";
     if (!password) e.password = "La contraseña es obligatoria";
     if (isRegister && password !== confirm) e.confirm = "Las contraseñas no coinciden";
-    if (isRegister && !role) e.role = "Debe seleccionar un rol";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
 
-  function handleSubmit(ev?: React.FormEvent) {
+  async function handleSubmit(ev?: React.FormEvent) {
     ev?.preventDefault();
     if (!validate()) return;
+    setServerError("");
 
-    if (isRegister) {
-      window.localStorage.setItem("vaccination.name", name);
-      window.localStorage.setItem("vaccination.role", role);
-      // Aquí podrías llamar a la API de registro
-      // Simulamos registro y vamos al inicio
-      navigate("/");
-      return;
+    try {
+      if (isRegister) {
+        const response = await apiClient.post("/auth/register", { rut, name, email, password });
+        localStorage.setItem("vaccination.token", response.data.accessToken);
+        localStorage.setItem("vaccination.name", response.data.user.name);
+        localStorage.setItem("vaccination.role", response.data.user.role);
+        navigate("/");
+      } else {
+        const response = await apiClient.post("/auth/login", { email, password });
+        localStorage.setItem("vaccination.token", response.data.accessToken);
+        localStorage.setItem("vaccination.name", response.data.user.name);
+        localStorage.setItem("vaccination.role", response.data.user.role);
+        navigate("/");
+      }
+    } catch (error: any) {
+      if (error.response?.data?.errors) {
+        const issues = error.response.data.errors.map((err: any) => err.message).join(", ");
+        setServerError(`Datos inválidos: ${issues}`);
+      } else {
+        setServerError(error.response?.data?.message || "Ocurrió un error al procesar la solicitud.");
+      }
     }
-
-    window.localStorage.setItem("vaccination.name", name);
-    // solucion temporal a falta de backend
-    const savedRole = window.localStorage.getItem("vaccination.role") ?? "Paciente";
-    window.localStorage.setItem("vaccination.role", savedRole);
-
-    // Aquí podrías llamar a la API de autenticación
-    // Simulamos login y redirigimos al inicio
-    navigate("/");
   }
 
   return (
@@ -68,6 +73,19 @@ export default function LoginPage() {
         <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }} component="form" onSubmit={handleSubmit}>
           <Stack spacing={2}>
             <Typography variant="h5">{isRegister ? "Crear cuenta" : "Iniciar sesión"}</Typography>
+
+            {serverError && <Alert severity="error">{serverError}</Alert>}
+
+            {isRegister && (
+              <TextField
+                label="RUT"
+                value={rut}
+                onChange={(e) => setRut(e.target.value)}
+                error={!!errors.rut}
+                helperText={errors.rut}
+                fullWidth
+              />
+            )}
 
             {isRegister && (
               <TextField
@@ -78,32 +96,6 @@ export default function LoginPage() {
                 helperText={errors.name}
                 fullWidth
               />
-            )}
-
-            {isRegister && (
-              <FormControl fullWidth error={!!errors.role}>
-                <InputLabel>Rol</InputLabel>
-
-                <Select
-                  value={role}
-                  label="Rol"
-                  onChange={(e) => setRole(e.target.value)}
-                >
-                  <MenuItem value = "Paciente">Paciente</MenuItem>
-                  <MenuItem value = "Personal de Salud">Personal de Salud</MenuItem>
-                  <MenuItem value = "Administrador">Administrador</MenuItem>
-                </Select>
-
-                {!!errors.role && (
-                  <Typography
-                    variant="caption"
-                    color="error"
-                    sx={{ml: 2, mt: 0.5}}
-                    >
-                      {errors.role}
-                    </Typography>
-                )}
-              </FormControl>
             )}
 
             <TextField
@@ -127,7 +119,6 @@ export default function LoginPage() {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                       onClick={() => setShowPassword((value) => !value)}
                       edge="end"
                     >
@@ -151,7 +142,6 @@ export default function LoginPage() {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
-                        aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
                         onClick={() => setShowPassword((value) => !value)}
                         edge="end"
                       >
