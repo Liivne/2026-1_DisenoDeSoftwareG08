@@ -1,10 +1,17 @@
-export interface Appointment {
-    id: number;
-    vaccine: string;
-    date: string;
-    time: string;
-    location: string;
-    status: AppointmentStatus;
-}
+export type AppointmentStatus =
+  | "PENDIENTE"
+  | "CONFIRMADA"
+  | "EN_PROCESO"
+  | "COMPLETADA"
+  | "CANCELADA"
+  | "AUSENTE";
 
-export type AppointmentStatus = "Planificada" | "Confirmada" | "Cancelada" | "Completada";
+export interface Appointment {
+  id: number;
+  date: string;
+  status: AppointmentStatus;
+  campaign: string;
+  vaccine: string;
+  vaccinationPoint: string;
+  address: string;
+}

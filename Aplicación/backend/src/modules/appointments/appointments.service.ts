@@ -59,7 +59,25 @@ export class AppointmentsService {
   }
 
   async completeAppointment(appointmentId: number) {
-    return this.changeStatus(appointmentId, AppointmentStatus.COMPLETADA);
+    const appointment = await appointmentsRepository.findById(appointmentId);
+
+    if (!appointment) {
+      throw new NotFoundError("La cita no existe.");
+    }
+
+    if (appointment.status === AppointmentStatus.COMPLETADA) {
+      throw new ForbiddenError("La cita ya fue completada.");
+    }
+
+    const completed = await appointmentsRepository.completeWithRecord(
+      appointmentId
+    );
+
+    if (!completed) {
+      throw new NotFoundError("La cita no existe.");
+    }
+
+    return toAppointmentResponse(completed);
   }
 
   private async changeStatus(

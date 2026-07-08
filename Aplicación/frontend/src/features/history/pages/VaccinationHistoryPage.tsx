@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
+  CircularProgress,
   Paper,
   Stack,
   Typography,
@@ -8,49 +9,11 @@ import {
 
 import VaccinationHistoryFilters from "../components/VaccinationHistoryFilters";
 import VaccinationHistoryList from "../components/VaccinationHistoryList";
+import { getMyVaccinationHistory } from "../services/vaccinationHistory.service";
 import type {
   VaccinationHistoryFilters as Filters,
   VaccinationHistoryItem,
 } from "../types/vaccinationHistory";
-
-const vaccinationHistory: VaccinationHistoryItem[] = [
-  {
-    id: 1,
-    vaccine: "COVID-19",
-    dose: "Refuerzo",
-    date: "2025-05-12",
-    displayDate: "12/05/2025",
-    center: "CESFAM Norte",
-    status: "Aplicada",
-  },
-  {
-    id: 2,
-    vaccine: "Influenza",
-    dose: "Dosis anual",
-    date: "2025-03-20",
-    displayDate: "20/03/2025",
-    center: "Hospital Regional",
-    status: "Aplicada",
-  },
-  {
-    id: 3,
-    vaccine: "Hepatitis B",
-    dose: "Segunda dosis",
-    date: "2024-11-08",
-    displayDate: "08/11/2024",
-    center: "CESFAM Central",
-    status: "Aplicada",
-  },
-  {
-    id: 4,
-    vaccine: "VPH",
-    dose: "Primera dosis",
-    date: "2024-08-15",
-    displayDate: "15/08/2024",
-    center: "Hospital San Borja Arriarán",
-    status: "Aplicada",
-  },
-];
 
 const initialFilters: Filters = {
   vaccine: "",
@@ -61,9 +24,35 @@ const initialFilters: Filters = {
 
 export default function VaccinationHistoryPage() {
   const [filters, setFilters] = useState<Filters>(initialFilters);
+  const [history, setHistory] = useState<VaccinationHistoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadHistory() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data = await getMyVaccinationHistory();
+
+        setHistory(data);
+      } catch (error) {
+        setError(
+          error instanceof Error
+            ? error.message
+            : "No fue posible cargar el historial."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadHistory();
+  }, []);
 
   const filteredHistory = useMemo(() => {
-    return vaccinationHistory.filter((item) => {
+    return history.filter((item) => {
       const matchesVaccine = filters.vaccine
         ? item.vaccine === filters.vaccine
         : true;
@@ -87,7 +76,7 @@ export default function VaccinationHistoryPage() {
         matchesDateTo
       );
     });
-  }, [filters]);
+  }, [filters, history]);
 
   return (
     <Stack spacing={3}>
@@ -118,13 +107,23 @@ export default function VaccinationHistoryPage() {
         onClear={() => setFilters(initialFilters)}
       />
 
-      <Stack spacing={2}>
-        <Typography variant="h6" fontWeight={700}>
-          Vacunas registradas
-        </Typography>
+      {loading && <CircularProgress />}
 
-        <VaccinationHistoryList items={filteredHistory} />
-      </Stack>
+      {error && (
+        <Typography color="error">
+          {error}
+        </Typography>
+      )}
+
+      {!loading && !error && (
+        <Stack spacing={2}>
+          <Typography variant="h6" fontWeight={700}>
+            Vacunas registradas
+          </Typography>
+
+          <VaccinationHistoryList items={filteredHistory} />
+        </Stack>
+      )}
     </Stack>
   );
 }

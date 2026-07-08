@@ -9,11 +9,16 @@ import {
 
 import type { Campaign } from "../types/campaign";
 
-type CampaignFormValues = {
+type VaccineOption = {
+  id: number;
+  name: string;
+};
+
+export type CampaignFormValues = {
   name: string;
   startDate: string;
   endDate: string;
-  vaccine: string;
+  vaccineId: string;
   responsible: string;
   status: string;
 };
@@ -23,6 +28,7 @@ type CampaignFormErrors = Partial<Record<keyof CampaignFormValues, string>>;
 type CampaignFormProps = {
   mode?: "create" | "edit";
   initialValues?: Partial<Campaign>;
+  vaccines: VaccineOption[];
   submitLabel?: string;
   showStatus?: boolean;
   onCancel?: () => void;
@@ -33,24 +39,29 @@ const defaultValues: CampaignFormValues = {
   name: "",
   startDate: "",
   endDate: "",
-  vaccine: "",
-  responsible: "",
+  vaccineId: "",
+  responsible: "Administrador",
   status: "Planificada",
 };
 
 export default function CampaignForm({
   mode = "create",
   initialValues,
+  vaccines,
   submitLabel,
   showStatus = true,
   onCancel,
   onSubmit,
 }: CampaignFormProps) {
+  const initialVaccine = vaccines.find(
+    (vaccine) => vaccine.name === initialValues?.vaccine
+  );
+
   const [values, setValues] = useState<CampaignFormValues>({
     name: initialValues?.name ?? defaultValues.name,
     startDate: initialValues?.startDate ?? defaultValues.startDate,
     endDate: initialValues?.endDate ?? defaultValues.endDate,
-    vaccine: initialValues?.vaccine ?? defaultValues.vaccine,
+    vaccineId: initialVaccine ? String(initialVaccine.id) : defaultValues.vaccineId,
     responsible: initialValues?.responsible ?? defaultValues.responsible,
     status: initialValues?.status ?? defaultValues.status,
   });
@@ -81,8 +92,8 @@ export default function CampaignForm({
         "La fecha de término no puede ser anterior a la fecha de inicio.";
     }
 
-    if (!values.vaccine) {
-      newErrors.vaccine = "Debes seleccionar una vacuna.";
+    if (!values.vaccineId) {
+      newErrors.vaccineId = "Debes seleccionar una vacuna.";
     }
 
     if (!values.responsible.trim()) {
@@ -116,7 +127,8 @@ export default function CampaignForm({
   const handleSubmit = () => {
     if (!validate()) return;
 
-    onSubmit?.({...values,
+    onSubmit?.({
+      ...values,
       status: showStatus ? values.status : "Planificada",
     });
   };
@@ -174,16 +186,18 @@ export default function CampaignForm({
         fullWidth
         required
         label="Vacuna"
-        value={values.vaccine}
-        error={Boolean(errors.vaccine)}
-        helperText={errors.vaccine}
+        value={values.vaccineId}
+        error={Boolean(errors.vaccineId)}
+        helperText={errors.vaccineId}
         onChange={(event) =>
-          handleChange("vaccine", event.target.value)
+          handleChange("vaccineId", event.target.value)
         }
       >
-        <MenuItem value="COVID-19">COVID-19</MenuItem>
-        <MenuItem value="Influenza">Influenza</MenuItem>
-        <MenuItem value="Hepatitis B">Hepatitis B</MenuItem>
+        {vaccines.map((vaccine) => (
+          <MenuItem key={vaccine.id} value={String(vaccine.id)}>
+            {vaccine.name}
+          </MenuItem>
+        ))}
       </TextField>
 
       <TextField

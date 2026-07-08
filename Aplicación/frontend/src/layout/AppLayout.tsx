@@ -1,66 +1,44 @@
 import { useMemo, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
 
 import AppShell from "@/shared/components/AppShell/AppShell";
 import { sidebarConfig } from "@/shared/config/sidebarConfig";
-import { roleOrder } from "@/shared/config/roles";
-import type { Role } from "@/shared/types/role";
-
-function getStoredRole(): Role {
-  const role = localStorage.getItem("vaccination.role");
-
-  return roleOrder.includes(role as Role)
-    ? (role as Role)
-    : "Paciente";
-}
-
-function getStoredName(role: Role): string {
-  const storedName = localStorage.getItem("vaccination.name");
-
-  if (storedName) {
-    return storedName;
-  }
-
-  switch (role) {
-    case "Administrador":
-      return "Dra. Valeria Gómez";
-
-    case "Personal de Salud":
-      return "Dra. Laura Méndez";
-
-    default:
-      return "María Fernanda Ruiz";
-  }
-}
+import { mapApiRoleToFrontendRole } from "@/shared/utils/roleMapper";
+import { useAuth } from "@/features/auth/context/AuthContext";
+import { useSnackbar } from "@/shared/context/SnackbarContext";
 
 export default function AppLayout() {
   const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
+  const { showInfo } = useSnackbar();
 
   const [collapsed, setCollapsed] = useState(false);
 
-  const role = useMemo(getStoredRole, []);
+  const role = useMemo(() => {
+    if (!user) return null;
 
-  const userName = useMemo(
-    () => getStoredName(role),
-    [role]
-  );
+    return mapApiRoleToFrontendRole(user.role);
+  }, [user]);
 
   function handleLogout() {
-    localStorage.removeItem("vaccination.role");
-    localStorage.removeItem("vaccination.name");
-
+    logout();
+    showInfo("Sesión cerrada correctamente.");
     navigate("/login");
+  }
+
+  if (!isAuthenticated || !user || !role) {
+    return <Navigate to="/login" replace />;
   }
 
   return (
     <AppShell
-        role={role}
-        userName={userName}
-        menuItems={sidebarConfig[role]}
-        drawerWidth={collapsed ? 96 : 288}
-        collapsed={collapsed}
-        onToggleCollapsed={() =>
-            setCollapsed((value) => !value)
+      role={role}
+      userName={user.name}
+      menuItems={sidebarConfig[role]}
+      drawerWidth={collapsed ? 96 : 288}
+      collapsed={collapsed}
+      onToggleCollapsed={() =>
+        setCollapsed((value) => !value)
       }
       onLogout={handleLogout}
     >

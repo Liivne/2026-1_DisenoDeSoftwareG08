@@ -19,11 +19,10 @@ type CreateAppointmentData = {
 
 export class AppointmentsRepository {
   // Queries
+
   async findAll() {
     return prisma.appointment.findMany({
-      orderBy: {
-        appointmentDate: "asc",
-      },
+      orderBy: { appointmentDate: "asc" },
       include: appointmentInclude,
     });
   }
@@ -44,6 +43,7 @@ export class AppointmentsRepository {
   }
 
   // Commands
+
   async create(data: CreateAppointmentData) {
     return prisma.appointment.create({
       data,
@@ -56,6 +56,36 @@ export class AppointmentsRepository {
       where: { id },
       data: { status },
       include: appointmentInclude,
+    });
+  }
+
+  async completeWithRecord(id: number) {
+    return prisma.$transaction(async (tx) => {
+      const appointment = await tx.appointment.findUnique({
+        where: { id },
+        include: appointmentInclude,
+      });
+
+      if (!appointment) {
+        return null;
+      }
+
+      await tx.vaccinationRecord.create({
+        data: {
+          appointmentId: appointment.id,
+          userId: appointment.userId,
+          vaccineId: appointment.campaign.vaccine.id,
+          doseNumber: 1,
+        },
+      });
+
+      return tx.appointment.update({
+        where: { id },
+        data: {
+          status: AppointmentStatus.COMPLETADA,
+        },
+        include: appointmentInclude,
+      });
     });
   }
 }

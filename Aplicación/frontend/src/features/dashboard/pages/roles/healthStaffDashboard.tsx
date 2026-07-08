@@ -1,115 +1,185 @@
+import { useEffect, useMemo, useState } from "react";
+
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
-import AssignmentTurnedInOutlinedIcon from "@mui/icons-material/AssignmentTurnedInOutlined";
 import EventAvailableOutlinedIcon from "@mui/icons-material/EventAvailableOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import LocalHospitalOutlinedIcon from "@mui/icons-material/LocalHospitalOutlined";
-import PersonSearchOutlinedIcon from "@mui/icons-material/PersonSearchOutlined";
 import VaccinesOutlinedIcon from "@mui/icons-material/VaccinesOutlined";
+
 import {
   Box,
   Button,
   Chip,
+  CircularProgress,
   Grid,
   Stack,
   Typography,
 } from "@mui/material";
 
+import type { Appointment } from "@/features/appointments/types/appointment";
+import { getAppointments } from "@/features/agenda/services/agenda.service";
+
 import DashboardAlerts from "../../components/DashboardAlerts";
 import DashboardChart from "../../components/DashboardChart";
 import DashboardHero from "../../components/DashboardHero";
 import DashboardMetrics from "../../components/DashboardMetrics";
-import DashboardStats from "../../components/DashboardStats";
 import DashboardTable from "../../components/DashboardTable";
 import MiniBar from "../../components/MiniBars";
+import {
+  getDashboardSummary,
+  type DashboardSummary,
+} from "../../services/dashboard.service";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/features/auth/context/AuthContext";
+import { mapApiRoleToFrontendRole } from "@/shared/utils/roleMapper";
 
-const metrics = [
-  {
-    title: "Pacientes agendados",
-    value: 48,
-    icon: <EventAvailableOutlinedIcon />,
-    color: "#1565C0",
-  },
-  {
-    title: "Vacunas aplicadas",
-    value: 36,
-    icon: <VaccinesOutlinedIcon />,
-    color: "#2E7D32",
-  },
-  {
-    title: "Citas pendientes",
-    value: 12,
-    icon: <AccessTimeOutlinedIcon />,
-    color: "#EF6C00",
-  },
-  {
-    title: "Stock disponible",
-    value: 320,
-    icon: <Inventory2OutlinedIcon />,
-    color: "#6A1B9A",
-  },
-];
+function formatTime(value: string) {
+  return new Date(value).toLocaleTimeString("es-CL", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
-const stats = [
-  {
-    title: "Tiempo promedio",
-    value: "9 min",
-  },
-  {
-    title: "Cobertura diaria",
-    value: "82%",
-  },
-  {
-    title: "Turno actual",
-    value: "Mañana",
-  },
-  {
-    title: "Atenciones restantes",
-    value: 12,
-  },
-];
-
-const patients = [
-  {
-    name: "María Pérez",
-    time: "09:30",
-    vaccine: "Influenza",
-    status: "Confirmada",
-  },
-  {
-    name: "Juan Soto",
-    time: "10:00",
-    vaccine: "COVID-19",
-    status: "Pendiente",
-  },
-  {
-    name: "Ana Rojas",
-    time: "10:30",
-    vaccine: "Hepatitis B",
-    status: "Confirmada",
-  },
-];
-
-const alerts = [
-  {
-    id: 1,
-    title: "Pacientes sin confirmar",
-    description: "3 pacientes aún no confirman su asistencia.",
-    status: "Revisar",
-  },
-  {
-    id: 2,
-    title: "Revisión de stock",
-    description: "El stock de Influenza debe revisarse antes del cierre.",
-    status: "Pendiente",
-  },
-  {
-    id: 3,
-    title: "Turno tarde",
-    description: "Hay 12 citas pendientes para el segundo bloque.",
-  },
-];
+function getStatusLabel(status: Appointment["status"]) {
+  switch (status) {
+    case "PENDIENTE":
+      return "Pendiente";
+    case "CONFIRMADA":
+      return "Confirmada";
+    case "EN_PROCESO":
+      return "En proceso";
+    case "COMPLETADA":
+      return "Completada";
+    case "CANCELADA":
+      return "Cancelada";
+    case "AUSENTE":
+      return "Ausente";
+  }
+}
 
 export default function HealthStaffDashboard() {
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    async function loadDashboard() {
+      try {
+        const [summaryData, appointmentsData] = await Promise.all([
+          getDashboardSummary(),
+          getAppointments(),
+        ]);
+
+        setSummary(summaryData);
+        setAppointments(appointmentsData);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadDashboard();
+  }, []);
+
+  const activeAppointments = useMemo(
+    () =>
+      appointments.filter((appointment) =>
+        ["PENDIENTE", "CONFIRMADA", "EN_PROCESO"].includes(
+          appointment.status
+        )
+      ),
+    [appointments]
+  );
+
+  if (loading) {
+    return <CircularProgress />;
+  }
+
+  if (!summary) {
+    return (
+      <Typography color="error">
+        No fue posible cargar el dashboard.
+      </Typography>
+    );
+  }
+
+  const pendingAppointments = appointments.filter(
+    (appointment) => appointment.status === "PENDIENTE"
+  ).length;
+
+  const completedAppointments = appointments.filter(
+    (appointment) => appointment.status === "COMPLETADA"
+  ).length;
+
+  const metrics = [
+    {
+      title: "Pacientes agendados",
+      value: appointments.length,
+      icon: <EventAvailableOutlinedIcon />,
+      color: "#1565C0",
+    },
+    {
+      title: "Vacunas aplicadas",
+      value: summary.vaccinationRecords,
+      icon: <VaccinesOutlinedIcon />,
+      color: "#2E7D32",
+    },
+    {
+      title: "Citas pendientes",
+      value: pendingAppointments,
+      icon: <AccessTimeOutlinedIcon />,
+      color: "#EF6C00",
+    },
+    {
+      title: "Centros vacunatorios",
+      value: summary.vaccinationPoints,
+      icon: <Inventory2OutlinedIcon />,
+      color: "#6A1B9A",
+    },
+  ];
+
+  const stats = [
+    {
+      title: "Citas completadas",
+      value: completedAppointments,
+    },
+    {
+      title: "Citas activas",
+      value: activeAppointments.length,
+    },
+    {
+      title: "Campañas activas",
+      value: summary.activeCampaigns,
+    },
+    {
+      title: "Registros generados",
+      value: summary.vaccinationRecords,
+    },
+  ];
+
+  const patients = activeAppointments.slice(0, 3);
+
+  const alerts = [
+    {
+      id: 1,
+      title: "Citas pendientes",
+      description: `${pendingAppointments} citas aún requieren confirmación.`,
+      status: "Revisar",
+    },
+    {
+      id: 2,
+      title: "Vacunaciones registradas",
+      description: `${summary.vaccinationRecords} registros de vacunación creados.`,
+      status: "Actualizado",
+    },
+    {
+      id: 3,
+      title: "Agenda activa",
+      description: `${activeAppointments.length} citas activas en el sistema.`,
+    },
+  ];
+
   return (
     <Stack spacing={3}>
       <DashboardHero
@@ -117,6 +187,16 @@ export default function HealthStaffDashboard() {
         subtitle="Monitoreo diario de pacientes, vacunaciones y agenda clínica"
         badge="Personal de Salud"
         avatar={<LocalHospitalOutlinedIcon sx={{ fontSize: 40 }} />}
+        details={
+          user
+            ? [
+                { label: "Nombre", value: user.name },
+                { label: "Correo", value: user.email },
+                { label: "RUT", value: user.rut },
+                { label: "Rol", value: mapApiRoleToFrontendRole(user.role) },
+              ]
+            : []
+        }
       />
 
       <DashboardMetrics metrics={metrics} />
@@ -125,20 +205,27 @@ export default function HealthStaffDashboard() {
         <Grid size={{ xs: 12, lg: 8 }}>
           <DashboardTable
             title="Próximos pacientes"
-            subtitle="Pacientes agendados para la jornada actual"
+            subtitle="Pacientes agendados para la jornada"
             actions={
               <Button
                 variant="contained"
-                startIcon={<PersonSearchOutlinedIcon />}
+                startIcon={<EventAvailableOutlinedIcon />}
+                onClick={() => navigate("/agenda")}
               >
-                Buscar paciente
+                Ver agenda
               </Button>
             }
           >
             <Stack spacing={2}>
-              {patients.map((patient) => (
+              {patients.length === 0 && (
+                <Typography color="text.secondary">
+                  No hay pacientes pendientes.
+                </Typography>
+              )}
+
+              {patients.map((appointment) => (
                 <Box
-                  key={`${patient.name}-${patient.time}`}
+                  key={appointment.id}
                   sx={{
                     p: 2.5,
                     borderRadius: 3,
@@ -147,36 +234,35 @@ export default function HealthStaffDashboard() {
                   }}
                 >
                   <Stack
-                    direction={{
-                      xs: "column",
-                      sm: "row",
-                    }}
+                    direction={{ xs: "column", sm: "row" }}
                     spacing={2}
                     justifyContent="space-between"
-                    alignItems={{
-                      xs: "flex-start",
-                      sm: "center",
-                    }}
+                    alignItems={{ xs: "flex-start", sm: "center" }}
                   >
                     <Box>
                       <Typography variant="subtitle1" fontWeight={700}>
-                        {patient.name}
+                        {appointment.campaign}
                       </Typography>
 
                       <Typography variant="body2" color="text.secondary">
-                        {patient.vaccine}
+                        {appointment.vaccine}
                       </Typography>
                     </Box>
 
                     <Stack direction="row" spacing={1.5} alignItems="center">
-                      <Chip label={patient.time} variant="outlined" />
+                      <Chip
+                        label={formatTime(appointment.date)}
+                        variant="outlined"
+                      />
 
                       <Chip
-                        label={patient.status}
+                        label={getStatusLabel(appointment.status)}
                         color={
-                          patient.status === "Confirmada"
+                          appointment.status === "CONFIRMADA"
                             ? "success"
-                            : "warning"
+                            : appointment.status === "EN_PROCESO"
+                              ? "info"
+                              : "warning"
                         }
                         size="small"
                       />
@@ -189,25 +275,37 @@ export default function HealthStaffDashboard() {
         </Grid>
 
         <Grid size={{ xs: 12, lg: 4 }}>
-          <DashboardAlerts
-            title="Pendientes del día"
-            alerts={alerts}
-          />
+          <DashboardAlerts title="Pendientes del día" alerts={alerts} />
         </Grid>
       </Grid>
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, lg: 8 }}>
           <DashboardChart
-            title="Vacunaciones por día"
-            subtitle="Cantidad de dosis administradas durante la semana"
+            title="Estado de citas"
+            subtitle="Resumen operativo de la agenda"
           >
             <Stack spacing={2}>
-              <MiniBar label="Lunes" value={24} max={40} color="primary" />
-              <MiniBar label="Martes" value={32} max={40} color="primary" />
-              <MiniBar label="Miércoles" value={28} max={40} color="info" />
-              <MiniBar label="Jueves" value={35} max={40} color="success" />
-              <MiniBar label="Viernes" value={31} max={40} color="success" />
+              <MiniBar
+                label="Pendientes"
+                value={pendingAppointments}
+                max={Math.max(appointments.length, 1)}
+                color="warning"
+              />
+
+              <MiniBar
+                label="Completadas"
+                value={completedAppointments}
+                max={Math.max(appointments.length, 1)}
+                color="success"
+              />
+
+              <MiniBar
+                label="Activas"
+                value={activeAppointments.length}
+                max={Math.max(appointments.length, 1)}
+                color="primary"
+              />
             </Stack>
           </DashboardChart>
         </Grid>
@@ -215,35 +313,33 @@ export default function HealthStaffDashboard() {
         <Grid size={{ xs: 12, lg: 4 }}>
           <DashboardTable
             title="Avance de jornada"
-            subtitle="Estado operativo del día"
+            subtitle="Estado operativo del sistema"
           >
             <Stack spacing={2}>
               <MiniBar
                 label="Citas completadas"
-                value={36}
-                max={48}
+                value={completedAppointments}
+                max={Math.max(appointments.length, 1)}
                 color="success"
               />
 
               <MiniBar
-                label="Pacientes pendientes"
-                value={12}
-                max={48}
+                label="Citas pendientes"
+                value={pendingAppointments}
+                max={Math.max(appointments.length, 1)}
                 color="warning"
               />
 
               <MiniBar
-                label="Stock utilizado"
-                value={180}
-                max={500}
+                label="Vacunaciones registradas"
+                value={summary.vaccinationRecords}
+                max={Math.max(summary.appointments, 1)}
                 color="primary"
               />
             </Stack>
           </DashboardTable>
         </Grid>
       </Grid>
-
-      <DashboardStats stats={stats} />
     </Stack>
   );
 }

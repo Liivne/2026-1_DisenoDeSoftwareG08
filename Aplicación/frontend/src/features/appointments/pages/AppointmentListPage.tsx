@@ -1,28 +1,101 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
+import AddIcon from "@mui/icons-material/Add";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import EventAvailableOutlinedIcon from "@mui/icons-material/EventAvailableOutlined";
 import VaccinesOutlinedIcon from "@mui/icons-material/VaccinesOutlined";
-import { Appointment } from "../types/appointment";
-import { initialAppointments } from "../data/mockAppointments";
 
 import {
   Box,
   Button,
   Chip,
+  CircularProgress,
   Paper,
   Stack,
   Typography,
 } from "@mui/material";
 
+import { useSnackbar } from "@/shared/context/SnackbarContext";
+
 import CancelAppointmentDialog from "../components/CancelAppointmentDialog";
+import type { Appointment } from "../types/appointment";
+import {
+  cancelAppointment,
+  getMyAppointments,
+} from "../services/appointments.service";
 
-export default function PatientAppointmentsPage() {
-  const [appointments, setAppointments] =
-    useState<Appointment[]>(initialAppointments);
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("es-CL");
+}
 
+function formatTime(value: string) {
+  return new Date(value).toLocaleTimeString("es-CL", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function getStatusLabel(status: Appointment["status"]) {
+  switch (status) {
+    case "PENDIENTE":
+      return "Pendiente";
+    case "CONFIRMADA":
+      return "Confirmada";
+    case "EN_PROCESO":
+      return "En proceso";
+    case "COMPLETADA":
+      return "Completada";
+    case "CANCELADA":
+      return "Cancelada";
+    case "AUSENTE":
+      return "Ausente";
+  }
+}
+
+export default function AppointmentListPage() {
+  const navigate = useNavigate();
+  const { showSuccess, showError } = useSnackbar();
+
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  async function loadAppointments() {
+    try {
+      setLoading(true);
+      setError("");
+
+      const data = await getMyAppointments();
+
+      setAppointments(data);
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "No fue posible cargar tus citas."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadAppointments();
+  }, []);
+
+  const visibleAppointments = useMemo(
+    () =>
+      appointments.filter((appointment) =>
+        ["PENDIENTE", "CONFIRMADA", "EN_PROCESO"].includes(
+          appointment.status
+        )
+      ),
+    [appointments]
+  );
 
   const handleOpenCancelDialog = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
@@ -32,35 +105,59 @@ export default function PatientAppointmentsPage() {
     setSelectedAppointment(null);
   };
 
-  const handleConfirmCancel = () => {
+  const handleConfirmCancel = async () => {
     if (!selectedAppointment) return;
 
-    setAppointments((currentAppointments) =>
-      currentAppointments.map((appointment) =>
-        appointment.id === selectedAppointment.id
-          ? {
-              ...appointment,
-              status: "Cancelada",
-            }
-          : appointment
-      )
-    );
+    try {
+      await cancelAppointment(selectedAppointment.id);
 
-    setSelectedAppointment(null);
+      setAppointments((current) =>
+        current.filter(
+          (appointment) =>
+            appointment.id !== selectedAppointment.id
+        )
+      );
+
+      showSuccess("Cita cancelada correctamente.");
+      setSelectedAppointment(null);
+    } catch {
+      showError("No fue posible cancelar la cita.");
+    }
   };
 
   return (
     <Stack spacing={3}>
-      <Typography variant="h4" fontWeight={700}>
-        Mis citas
-      </Typography>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        <Typography variant="h4" fontWeight={700}>
+          Mis citas
+        </Typography>
 
-      <Stack spacing={2}>
-        {appointments.map((appointment) => {
-          const isCancelled = appointment.status === "Cancelada";
-          const isCompleted = appointment.status === "Completada";
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => navigate("/appointments/new")}
+        >
+          Agendar cita
+        </Button>
+      </Stack>
 
-          return (
+      {loading && <CircularProgress />}
+
+      {error && <Typography color="error">{error}</Typography>}
+
+      {!loading && !error && visibleAppointments.length === 0 && (
+        <Typography color="text.secondary">
+          No tienes citas pendientes o confirmadas.
+        </Typography>
+      )}
+
+      {!loading && !error && (
+        <Stack spacing={2}>
+          {visibleAppointments.map((appointment) => (
             <Paper
               key={appointment.id}
               elevation={0}
@@ -69,7 +166,6 @@ export default function PatientAppointmentsPage() {
                 borderRadius: 4,
                 border: "1px solid",
                 borderColor: "divider",
-                opacity: isCancelled ? 0.65 : 1,
               }}
             >
               <Stack
@@ -98,29 +194,34 @@ export default function PatientAppointmentsPage() {
                     </Typography>
 
                     <Typography color="text.secondary">
-                      {appointment.location}
+                      {appointment.vaccinationPoint} — {appointment.address}
                     </Typography>
 
-                    <Stack direction="row" spacing={1.5} mt={1.5} flexWrap="wrap">
+                    <Stack
+                      direction="row"
+                      spacing={1.5}
+                      mt={1.5}
+                      flexWrap="wrap"
+                    >
                       <Chip
                         icon={<CalendarMonthOutlinedIcon />}
-                        label={appointment.date}
+                        label={formatDate(appointment.date)}
                         variant="outlined"
                       />
 
                       <Chip
                         icon={<EventAvailableOutlinedIcon />}
-                        label={appointment.time}
+                        label={formatTime(appointment.date)}
                         variant="outlined"
                       />
 
                       <Chip
-                        label={appointment.status}
+                        label={getStatusLabel(appointment.status)}
                         color={
-                          appointment.status === "Cancelada"
-                            ? "error"
-                            : appointment.status === "Confirmada"
-                              ? "success"
+                          appointment.status === "CONFIRMADA"
+                            ? "success"
+                            : appointment.status === "EN_PROCESO"
+                              ? "info"
                               : "primary"
                         }
                         size="small"
@@ -132,7 +233,6 @@ export default function PatientAppointmentsPage() {
                 <Button
                   variant="outlined"
                   color="error"
-                  disabled={isCancelled || isCompleted}
                   onClick={() => handleOpenCancelDialog(appointment)}
                   sx={{
                     alignSelf: {
@@ -145,16 +245,18 @@ export default function PatientAppointmentsPage() {
                 </Button>
               </Stack>
             </Paper>
-          );
-        })}
-      </Stack>
+          ))}
+        </Stack>
+      )}
 
       <CancelAppointmentDialog
         open={Boolean(selectedAppointment)}
         appointmentName={selectedAppointment?.vaccine}
         appointmentDate={
           selectedAppointment
-            ? `${selectedAppointment.date} a las ${selectedAppointment.time}`
+            ? `${formatDate(selectedAppointment.date)} a las ${formatTime(
+                selectedAppointment.date
+              )}`
             : undefined
         }
         onClose={handleCloseCancelDialog}

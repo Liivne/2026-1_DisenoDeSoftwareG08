@@ -26,32 +26,24 @@ export default function DashboardChart({
         border: "1px solid",
         borderColor: "divider",
         height: "100%",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      <Stack spacing={3}>
-
+      <Stack spacing={3} sx={{ flex: 1 }}>
         <Stack spacing={0.5}>
-
-          <Typography
-            variant="h6"
-            fontWeight={700}
-          >
+          <Typography variant="h6" fontWeight={700}>
             {title}
           </Typography>
 
           {subtitle && (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-            >
+            <Typography variant="body2" color="text.secondary">
               {subtitle}
             </Typography>
           )}
-
         </Stack>
 
-        {children}
-
+        <Stack sx={{ flex: 1 }}>{children}</Stack>
       </Stack>
     </Paper>
   );

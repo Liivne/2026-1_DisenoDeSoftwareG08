@@ -1,41 +1,83 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
   Button,
+  CircularProgress,
   Paper,
   Stack,
   Typography,
 } from "@mui/material";
 
-import CampaignForm from "../components/CampaignForm";
-import { mockCampaigns } from "../data/mockCampaigns";
+import CampaignForm, {
+  type CampaignFormValues,
+} from "../components/CampaignForm";
+import {
+  getCampaignById,
+  updateCampaign,
+} from "../services/campaigns.service";
+import type { Campaign } from "../types/campaign";
+import { getVaccines } from "@/features/vaccines/services/vaccines.service";
+import type { Vaccine } from "@/features/vaccines/types/vaccine";
+import { useSnackbar } from "@/shared/context/SnackbarContext";
 
 export default function EditCampaignPage() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { showSuccess, showError } = useSnackbar();
 
-  const campaign = useMemo(
-    () =>
-      mockCampaigns.find(
-        (item) => String(item.id) === id
-      ),
-    [id]
-  );
+  const [campaign, setCampaign] = useState<Campaign | null>(null);
+  const [vaccines, setVaccines] = useState<Vaccine[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [saved, setSaved] = useState(false);
+  useEffect(() => {
+    async function loadData() {
+      if (!id) return;
+
+      try {
+        const [campaignData, vaccineData] = await Promise.all([
+          getCampaignById(Number(id)),
+          getVaccines(),
+        ]);
+
+        setCampaign(campaignData);
+        setVaccines(vaccineData);
+      } catch {
+        showError("No fue posible cargar la campaña.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, [id, showError]);
 
   const handleCancel = () => {
     navigate("/campaigns");
   };
 
-  const handleSave = () => {
-    setSaved(true);
+  const handleSave = async (values: CampaignFormValues) => {
+    if (!id) return;
 
-    setTimeout(() => {
+    try {
+      await updateCampaign(Number(id), {
+        name: values.name,
+        startDate: values.startDate,
+        endDate: values.endDate,
+        vaccineId: Number(values.vaccineId),
+        active: values.status === "Activa",
+      });
+
+      showSuccess("Campaña actualizada correctamente.");
       navigate("/campaigns");
-    }, 700);
+    } catch {
+      showError("No fue posible actualizar la campaña.");
+    }
   };
+
+  if (loading) {
+    return <CircularProgress />;
+  }
 
   if (!campaign) {
     return (
@@ -72,20 +114,6 @@ export default function EditCampaignPage() {
         </Typography>
       </Box>
 
-      {saved && (
-        <Paper
-          elevation={0}
-          sx={{
-            p: 2,
-            borderRadius: 3,
-            bgcolor: "success.light",
-            color: "success.contrastText",
-          }}
-        >
-          Campaña actualizada correctamente.
-        </Paper>
-      )}
-
       <Paper
         elevation={0}
         sx={{
@@ -98,6 +126,7 @@ export default function EditCampaignPage() {
         <CampaignForm
           mode="edit"
           showStatus
+          vaccines={vaccines}
           initialValues={campaign}
           submitLabel="Guardar cambios"
           onCancel={handleCancel}
