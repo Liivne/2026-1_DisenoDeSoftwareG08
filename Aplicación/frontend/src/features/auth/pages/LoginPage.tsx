@@ -9,10 +9,7 @@ import {
   Typography,
   Paper,
   Stack,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  Alert
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -25,12 +22,12 @@ export default function LoginPage() {
   const { loginUser } = useAuth();
   const { showSuccess, showError } = useSnackbar();
   const [isRegister, setIsRegister] = useState(false);
+  const [rut, setRut] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState("");
 
@@ -121,6 +118,19 @@ export default function LoginPage() {
                 ? "Crear cuenta"
                 : "Iniciar sesión"}
             </Typography>
+
+            {serverError && <Alert severity="error">{serverError}</Alert>}
+
+            {isRegister && (
+              <TextField
+                label="RUT"
+                value={rut}
+                onChange={(e) => setRut(e.target.value)}
+                error={!!errors.rut}
+                helperText={errors.rut}
+                fullWidth
+              />
+            )}
 
             {isRegister && (
               <TextField
