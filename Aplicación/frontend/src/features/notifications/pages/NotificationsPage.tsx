@@ -5,6 +5,7 @@ import {
   Paper,
   Stack,
   Typography,
+  Button
 } from "@mui/material";
 
 import { useAuth } from "@/features/auth/context/AuthContext";
@@ -20,6 +21,7 @@ import {
   getUnreadCountForRole,
   readStoredNotifications,
   writeStoredNotifications,
+  dispatchAndEmailNotification
 } from "../utils/notificationStorage";
 
 export default function NotificationsPage() {
@@ -72,6 +74,16 @@ export default function NotificationsPage() {
     );
   };
 
+  const handleSimulateNotification = () => {
+    if (!user) return;
+    dispatchAndEmailNotification(user.email, user.name, {
+      title: "Prueba de Integración Brevo",
+      description: "Esta es una notificación de prueba que llega a tu correo.",
+      type: "info",
+      audience: "Todos"
+    });
+  };
+
   return (
     <Stack spacing={3}>
       <Paper
@@ -83,19 +95,30 @@ export default function NotificationsPage() {
           color: "white",
         }}
       >
-        <Stack direction="row" spacing={2} alignItems="center">
-          <NotificationsOutlinedIcon sx={{ fontSize: 42 }} />
+        <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
+          <Stack direction="row" spacing={2} alignItems="center">
+            <NotificationsOutlinedIcon sx={{ fontSize: 42 }} />
 
-          <Stack spacing={0.5}>
-            <Typography variant="h4" fontWeight={700}>
-              Notificaciones
-            </Typography>
+            <Stack spacing={0.5}>
+              <Typography variant="h4" fontWeight={700}>
+                Notificaciones
+              </Typography>
 
-            <Typography variant="body1" sx={{ opacity: 0.9 }}>
-              Consulta avisos importantes, recordatorios y actualizaciones del
-              sistema.
-            </Typography>
+              <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                Consulta avisos importantes, recordatorios y actualizaciones del
+                sistema.
+              </Typography>
+            </Stack>
           </Stack>
+
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleSimulateNotification}
+            sx={{ fontWeight: "bold", bgcolor: "white", color: "#1565C0", '&:hover': { bgcolor: "#f0f0f0" } }}
+          >
+            + Simular Notificación
+          </Button>
         </Stack>
       </Paper>
 

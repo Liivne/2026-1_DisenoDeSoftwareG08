@@ -7,6 +7,7 @@ import campaignsRoutes from "../modules/campaigns/campaigns.routes.js";
 import vaccinationPointsRoutes from "../modules/vaccination-points/vaccination-points.routes.js";
 import vaccinationRecordsRoutes from "../modules/vaccination-records/vaccination-records.routes.js";
 import dashboardRoutes from "../modules/dashboard/dashboard.routes.js";
+import notificationsRoutes from "../modules/notifications/notifications.routes.js";
 
 const router = Router();
 
@@ -22,5 +23,6 @@ router.use("/campaigns", campaignsRoutes);
 router.use("/vaccination-points", vaccinationPointsRoutes);
 router.use("/vaccination-records", vaccinationRecordsRoutes);
 router.use("/dashboard", dashboardRoutes);
+router.use("/notifications", notificationsRoutes);
 
 export default router;
