@@ -175,6 +175,7 @@ Terminal 1:
 ```bash
 cd backend
 npm install
+... comandos intermedios, ya mencionados
 npm run dev
 ```
 
