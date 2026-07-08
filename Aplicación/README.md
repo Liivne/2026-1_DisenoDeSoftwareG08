@@ -1,117 +1,273 @@
-# Agenda de Vacunación
+# 💉 VacunaGest
 
-Proyecto Django base para simular un flujo de agendamiento de vacunación con datos mock, validaciones en consola y pantallas alineadas al BPMN descrito.
+Sistema web para la gestión de campañas de vacunación desarrollado como proyecto para la asignatura **Ingeniería de Software**.
 
-## Incluye
+El sistema permite administrar campañas de vacunación, usuarios, vacunas, citas e historial de vacunación mediante una arquitectura cliente-servidor utilizando React, Node.js, Express, Prisma y PostgreSQL.
 
-- Inicio, login y registro.
-- Pantalla principal con campañas, vacunas, puntos y horarios.
-- Selección de campaña y cita.
-- Confirmación de reserva o mensaje de no disponibilidad.
-- Simulación de consultas y almacenamiento en memoria.
+---
 
-## Requisitos
+# Integrantes
 
-- Python 3.10 o superior.
-- pip.
+- Martín Henríquez
+- (Agregar integrantes del equipo)
 
-## Instalación y ejecución
+---
 
-### Windows (PowerShell)
+# Tecnologías utilizadas
 
-1. Crear entorno virtual:
+## Frontend
 
-```powershell
-py -m venv .venv
+- React
+- TypeScript
+- Vite
+- Material UI
+- React Router
+
+## Backend
+
+- Node.js
+- Express
+- Prisma ORM
+- PostgreSQL
+- JWT
+- bcrypt
+
+---
+
+# Arquitectura
+
+El proyecto se encuentra dividido en dos aplicaciones independientes.
+
+```
+Aplicación
+│
+├── backend
+└── frontend
 ```
 
-2. Activar entorno virtual:
+- **Frontend:** interfaz de usuario desarrollada en React.
+- **Backend:** API REST encargada de la lógica de negocio y acceso a la base de datos.
 
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
+---
 
-3. Instalar dependencias:
+# Requisitos
 
-```powershell
-pip install -r requirements.txt
-```
+Antes de ejecutar el proyecto es necesario tener instalado:
 
-4. Aplicar migraciones iniciales:
+- Node.js 20 o superior
+- PostgreSQL
+- Git
+- npm
 
-```powershell
-python manage.py migrate
-```
+---
 
-5. Levantar servidor:
+# Instalación
 
-```powershell
-python manage.py runserver
-```
-
-6. Abrir en navegador:
-
-http://localhost:8000/
-
-### macOS / Linux
-
-1. Crear entorno virtual:
+Clonar el repositorio:
 
 ```bash
-python3 -m venv .venv
+git clone <URL_DEL_REPOSITORIO>
 ```
 
-2. Activar entorno virtual:
+Entrar al proyecto:
 
 ```bash
-source .venv/bin/activate
+cd Aplicación
 ```
 
-3. Instalar dependencias:
+---
+
+# Configuración del Backend
+
+Entrar al directorio:
 
 ```bash
-pip install -r requirements.txt
+cd backend
 ```
 
-4. Aplicar migraciones iniciales:
+Instalar dependencias:
 
 ```bash
-python manage.py migrate
+npm install
 ```
 
-5. Levantar servidor:
+Crear un archivo `.env` utilizando `.env.example` como referencia.
+
+Ejemplo:
+
+```env
+DATABASE_URL="postgresql://usuario:password@localhost:5432/vaccination_db"
+JWT_SECRET="super_secret_key"
+PORT=3000
+```
+
+Generar Prisma Client:
 
 ```bash
-python manage.py runserver
+npx prisma generate
 ```
 
-6. Abrir en navegador:
+Ejecutar las migraciones:
 
-http://localhost:8000/
+```bash
+npx prisma migrate dev
+```
 
-## Cómo probar el flujo BPMN
+Si el proyecto posee datos iniciales:
 
-1. Entrar a Inicio.
-2. Probar Login con usuario demo:
-	Correo: demo@vacunacion.cl
-	Clave: Demo1234
-3. También puedes probar Registro creando una cuenta nueva.
-4. Ir a Pantalla principal, luego Campañas y Agendamiento.
-5. Confirmar una reserva y revisar la pantalla de Confirmación.
-6. Probar escenario sin cupos con esta combinación:
-	Campaña: COVID-19
-	Vacuna: Spikevax
-	Punto: Centro Comunitario Sur
-	Resultado esperado: mensaje de no disponibilidad.
+```bash
+npx prisma db seed
+```
 
-## Evidencia de simulación
+Iniciar el servidor:
 
-Las validaciones y consultas a "base de datos" son simuladas y se muestran por consola con mensajes tipo:
+```bash
+npm run dev
+```
 
-- [Sistema] ...
-- [DB] ...
+El backend quedará disponible en:
 
-## Notas
+```
+http://localhost:3000
+```
 
-- No se requiere una base de datos real para esta primera versión.
-- La capa de servicio usa estructuras en memoria para simular usuarios, campañas y reservas.
+---
+
+# Configuración del Frontend
+
+Abrir otra terminal.
+
+Entrar al directorio:
+
+```bash
+cd frontend
+```
+
+Instalar dependencias:
+
+```bash
+npm install
+```
+
+Crear un archivo `.env` utilizando `.env.example` como referencia.
+
+Ejemplo:
+
+```env
+VITE_API_URL=http://localhost:3000/api
+```
+
+Ejecutar:
+
+```bash
+npm run dev
+```
+
+Abrir:
+
+```
+http://localhost:5173
+```
+
+---
+
+# Orden de ejecución
+
+El proyecto requiere ejecutar ambos servicios.
+
+Terminal 1:
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+Terminal 2:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+# Funcionalidades implementadas
+
+## Administrador
+
+- Dashboard administrativo
+- Gestión de campañas
+- Gestión de vacunas
+- Gestión de usuarios
+- Gestión de notificaciones
+
+## Personal de Salud
+
+- Dashboard operativo
+- Agenda diaria de vacunación
+- Confirmar citas
+- Iniciar atención
+- Completar vacunación
+- Registrar pacientes ausentes
+
+## Paciente
+
+- Dashboard personal
+- Agendar citas
+- Cancelar citas
+- Historial de vacunación
+- Notificaciones
+
+---
+
+# Base de datos
+
+La aplicación utiliza PostgreSQL administrado mediante Prisma ORM.
+
+Para aplicar cambios al esquema:
+
+```bash
+npx prisma migrate dev
+```
+
+Si únicamente se modificó el esquema y no existen migraciones nuevas:
+
+```bash
+npx prisma generate
+```
+
+---
+
+# Variables de entorno
+
+Por seguridad, los archivos `.env` no forman parte del repositorio.
+
+Cada integrante debe crear:
+
+```
+backend/.env
+frontend/.env
+```
+
+utilizando los archivos:
+
+```
+backend/.env.example
+frontend/.env.example
+```
+
+como referencia.
+
+---
+
+# Estado del proyecto
+
+Actualmente el sistema implementa las funcionalidades principales requeridas para la gestión de campañas de vacunación y continúa en desarrollo con mejoras orientadas a experiencia de usuario, reportes y funcionalidades complementarias.
+
+---
+
+# Licencia
+
+Proyecto desarrollado con fines exclusivamente académicos.
