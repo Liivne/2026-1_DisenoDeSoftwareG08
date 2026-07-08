@@ -38,55 +38,57 @@ export default function DashboardAlerts({
         border: "1px solid",
         borderColor: "divider",
         height: "100%",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      <Stack spacing={2}>
-
-        <Typography
-          variant="h6"
-          fontWeight={700}
-        >
+      <Stack spacing={2} sx={{ flex: 1 }}>
+        <Typography variant="h6" fontWeight={700}>
           {title}
         </Typography>
 
-        <List disablePadding>
-
-          {alerts.map((alert) => (
-            <ListItem
-              key={alert.id}
-              disablePadding
-              sx={{ mb: 1 }}
-            >
-              <ListItemButton
-                onClick={() => onSelect?.(alert)}
-                sx={{
-                  borderRadius: 2,
-                  py: 1.5,
-                }}
+        {alerts.length === 0 ? (
+          <Typography color="text.secondary">
+            No hay alertas disponibles.
+          </Typography>
+        ) : (
+          <List disablePadding sx={{ flex: 1 }}>
+            {alerts.map((alert) => (
+              <ListItem
+                key={alert.id}
+                disablePadding
+                sx={{ mb: 1 }}
               >
-                <ListItemText
-                  primary={alert.title}
-                  secondary={alert.description}
-                />
-
-                {alert.status && (
-                  <Chip
-                    label={alert.status}
-                    size="small"
-                    sx={{ mr: 1 }}
+                <ListItemButton
+                  onClick={() => onSelect?.(alert)}
+                  sx={{
+                    borderRadius: 2,
+                    py: 1.5,
+                    alignItems: "center",
+                  }}
+                >
+                  <ListItemText
+                    primary={alert.title}
+                    secondary={alert.description}
+                    primaryTypographyProps={{
+                      fontWeight: 700,
+                    }}
                   />
-                )}
 
-                <ChevronRightOutlinedIcon
-                  color="action"
-                />
+                  {alert.status && (
+                    <Chip
+                      label={alert.status}
+                      size="small"
+                      sx={{ mr: 1 }}
+                    />
+                  )}
 
-              </ListItemButton>
-            </ListItem>
-          ))}
-
-        </List>
-
+                  <ChevronRightOutlinedIcon color="action" />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        )}
       </Stack>
     </Paper>
   );

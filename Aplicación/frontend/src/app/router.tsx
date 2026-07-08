@@ -10,6 +10,10 @@ import VaccinationHistoryPage from "@/features/history/pages/VaccinationHistoryP
 import NotificationsPage from "@/features/notifications/pages/NotificationsPage";
 import EditCampaignPage from "@/features/campaigns/pages/EditCampaignPage";
 import EditProfilePage from "@/features/profile/pages/EditProfilePage";
+import VaccineListPage from "@/features/vaccines/pages/VaccineListPage";
+import UserListPage from "@/features/users/pages/UserListPage";
+import HealthAgendaPage from "@/features/agenda/pages/HealthAgendaPage";
+import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 
 export function AppRouter() {
   return (
@@ -22,43 +26,49 @@ export function AppRouter() {
         path="/login"
         element={<LoginPage />}
       />
-      <Route element={<AppLayout />}>
-        <Route
-          path="/dashboard"
-          element={<DashboardPage />}
-        />
-        <Route
-          path="/campaigns"
-          element={<CampaignListPage />}
-        />
-        <Route
-          path="/campaigns/new"
-          element={<CreateCampaignPage />}
-        />
-        <Route
-          path="/appointments"
-          element={<AppointmentListPage />}
-        />
-        <Route
-          path="/appointments/new"
-          element={<CreateAppointmentPage />}
-        />
-        <Route
-          path="/history"
-          element={<VaccinationHistoryPage />}
-        />
-        <Route
-          path="/notifications"
-          element={<NotificationsPage />}
-        />
-        <Route
-          path="/campaigns/:id/edit"
-          element={<EditCampaignPage />}
-        />
-        <Route
-          path="/profile/edit"
-          element={<EditProfilePage />}
-        />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+
+          <Route
+            element={
+              <ProtectedRoute
+                allowedRoles={["Administrador"]}
+              />
+            }
+          >
+            <Route path="/users" element={<UserListPage />} />
+            <Route path="/campaigns" element={<CampaignListPage />} />
+            <Route path="/campaigns/new" element={<CreateCampaignPage />} />
+            <Route path="/campaigns/:id/edit" element={<EditCampaignPage />} />
+            <Route path="/vaccines" element={<VaccineListPage />} />
+          </Route>
+
+          <Route
+            element={
+              <ProtectedRoute
+                allowedRoles={["Paciente"]}
+              />
+            }
+          >
+            <Route path="/appointments" element={<AppointmentListPage />} />
+            <Route path="/appointments/new" element={<CreateAppointmentPage />} />
+            <Route path="/history" element={<VaccinationHistoryPage />} />
+          </Route>
+
+          <Route
+            element={
+              <ProtectedRoute
+                allowedRoles={["Personal de Salud"]}
+              />
+            }
+          >
+            <Route path="/agenda" element={<HealthAgendaPage />} />
+          </Route>
+
+          <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/profile/edit" element={<EditProfilePage />} />
+        </Route>
       </Route>
     </Routes>
   );

@@ -23,11 +23,15 @@ export default function MetricCard({
     <Paper
       elevation={0}
       sx={{
-        p: 3,
+        p: 2.5,
         borderRadius: 4,
         border: "1px solid",
         borderColor: "divider",
         height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        minHeight: 176,
         transition: "all .2s ease",
 
         "&:hover": {
@@ -36,14 +40,13 @@ export default function MetricCard({
         },
       }}
     >
-      <Stack spacing={2}>
-
+      <Stack spacing={1.5}>
         <Stack
           alignItems="center"
           justifyContent="center"
           sx={{
-            width: 54,
-            height: 54,
+            width: 50,
+            height: 50,
             borderRadius: 3,
             bgcolor: `${color}15`,
             color,
@@ -52,20 +55,13 @@ export default function MetricCard({
           {icon}
         </Stack>
 
-        <Typography
-          variant="h4"
-          fontWeight={700}
-        >
+        <Typography variant="h4" fontWeight={700}>
           {value}
         </Typography>
 
-        <Typography
-          variant="body2"
-          color="text.secondary"
-        >
+        <Typography variant="body2" color="text.secondary">
           {title}
         </Typography>
-
       </Stack>
     </Paper>
   );

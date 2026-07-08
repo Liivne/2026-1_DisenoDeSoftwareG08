@@ -13,10 +13,14 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import apiClient from "../../../api/client";
+import { login } from "../services/auth.service";
+import { useAuth } from "../context/AuthContext";
+import { useSnackbar } from "@/shared/context/SnackbarContext";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { loginUser } = useAuth();
+  const { showSuccess, showError } = useSnackbar();
   const [isRegister, setIsRegister] = useState(false);
   const [rut, setRut] = useState("");
   const [name, setName] = useState("");
@@ -29,50 +33,91 @@ export default function LoginPage() {
 
   function validate() {
     const e: Record<string, string> = {};
-    if (isRegister && !rut) e.rut = "El RUT es obligatorio";
-    if (isRegister && !name) e.name = "El nombre es obligatorio";
-    if (!email) e.email = "El correo es obligatorio";
-    if (!password) e.password = "La contraseña es obligatoria";
-    if (isRegister && password !== confirm) e.confirm = "Las contraseñas no coinciden";
+
+    if (isRegister && !name) {
+      e.name = "El nombre es obligatorio";
+    }
+
+    if (!email) {
+      e.email = "El correo es obligatorio";
+    }
+
+    if (!password) {
+      e.password = "La contraseña es obligatoria";
+    }
+
+    if (isRegister && password !== confirm) {
+      e.confirm = "Las contraseñas no coinciden";
+    }
+
+    if (isRegister && !role) {
+      e.role = "Debe seleccionar un rol";
+    }
+
     setErrors(e);
     return Object.keys(e).length === 0;
   }
 
-  async function handleSubmit(ev?: React.FormEvent) {
+  async function handleSubmit(
+    ev?: React.FormEvent
+  ) {
     ev?.preventDefault();
-    if (!validate()) return;
+
+    if (!validate()) {
+      return;
+    }
+
     setServerError("");
 
+    if (isRegister) {
+      navigate("/");
+      return;
+    }
+
     try {
-      if (isRegister) {
-        const response = await apiClient.post("/auth/register", { rut, name, email, password });
-        localStorage.setItem("vaccination.token", response.data.accessToken);
-        localStorage.setItem("vaccination.name", response.data.user.name);
-        localStorage.setItem("vaccination.role", response.data.user.role);
-        navigate("/");
-      } else {
-        const response = await apiClient.post("/auth/login", { email, password });
-        localStorage.setItem("vaccination.token", response.data.accessToken);
-        localStorage.setItem("vaccination.name", response.data.user.name);
-        localStorage.setItem("vaccination.role", response.data.user.role);
-        navigate("/");
-      }
-    } catch (error: any) {
-      if (error.response?.data?.errors) {
-        const issues = error.response.data.errors.map((err: any) => err.message).join(", ");
-        setServerError(`Datos inválidos: ${issues}`);
-      } else {
-        setServerError(error.response?.data?.message || "Ocurrió un error al procesar la solicitud.");
-      }
+      const response = await login(email, password);
+
+      loginUser(response.accessToken, response.user);
+
+      showSuccess("Sesión iniciada correctamente.");
+
+      navigate("/");
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "No fue posible iniciar sesión.";
+
+      setServerError(message);
+      showError(message);
     }
   }
 
   return (
-    <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center", py: 6 }}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "grid",
+        placeItems: "center",
+        py: 6,
+      }}
+    >
       <Container maxWidth="xs">
-        <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }} component="form" onSubmit={handleSubmit}>
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            borderRadius: 2,
+          }}
+          component="form"
+          onSubmit={handleSubmit}
+        >
           <Stack spacing={2}>
-            <Typography variant="h5">{isRegister ? "Crear cuenta" : "Iniciar sesión"}</Typography>
+            <Typography variant="h5">
+              {isRegister
+                ? "Crear cuenta"
+                : "Iniciar sesión"}
+            </Typography>
 
             {serverError && <Alert severity="error">{serverError}</Alert>}
 
@@ -91,18 +136,64 @@ export default function LoginPage() {
               <TextField
                 label="Nombre completo"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) =>
+                  setName(e.target.value)
+                }
                 error={!!errors.name}
                 helperText={errors.name}
                 fullWidth
               />
             )}
 
+            {isRegister && (
+              <FormControl
+                fullWidth
+                error={!!errors.role}
+              >
+                <InputLabel>Rol</InputLabel>
+
+                <Select
+                  value={role}
+                  label="Rol"
+                  onChange={(e) =>
+                    setRole(e.target.value)
+                  }
+                >
+                  <MenuItem value="Paciente">
+                    Paciente
+                  </MenuItem>
+
+                  <MenuItem value="Personal de Salud">
+                    Personal de Salud
+                  </MenuItem>
+
+                  <MenuItem value="Administrador">
+                    Administrador
+                  </MenuItem>
+                </Select>
+
+                {!!errors.role && (
+                  <Typography
+                    variant="caption"
+                    color="error"
+                    sx={{
+                      ml: 2,
+                      mt: 0.5,
+                    }}
+                  >
+                    {errors.role}
+                  </Typography>
+                )}
+              </FormControl>
+            )}
+
             <TextField
               label="Correo electrónico"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
               error={!!errors.email}
               helperText={errors.email}
               fullWidth
@@ -110,19 +201,33 @@ export default function LoginPage() {
 
             <TextField
               label="Contraseña"
-              type={showPassword ? "text" : "password"}
+              type={
+                showPassword
+                  ? "text"
+                  : "password"
+              }
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
               error={!!errors.password}
               helperText={errors.password}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      onClick={() => setShowPassword((value) => !value)}
                       edge="end"
+                      onClick={() =>
+                        setShowPassword(
+                          (v) => !v
+                        )
+                      }
                     >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                      {showPassword ? (
+                        <VisibilityOff />
+                      ) : (
+                        <Visibility />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -133,19 +238,35 @@ export default function LoginPage() {
             {isRegister && (
               <TextField
                 label="Confirmar contraseña"
-                type={showPassword ? "text" : "password"}
+                type={
+                  showPassword
+                    ? "text"
+                    : "password"
+                }
                 value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
+                onChange={(e) =>
+                  setConfirm(
+                    e.target.value
+                  )
+                }
                 error={!!errors.confirm}
                 helperText={errors.confirm}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
-                        onClick={() => setShowPassword((value) => !value)}
                         edge="end"
+                        onClick={() =>
+                          setShowPassword(
+                            (v) => !v
+                          )
+                        }
                       >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                        {showPassword ? (
+                          <VisibilityOff />
+                        ) : (
+                          <Visibility />
+                        )}
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -154,12 +275,36 @@ export default function LoginPage() {
               />
             )}
 
-            <Button type="submit" variant="contained" fullWidth>
-              {isRegister ? "Crear cuenta" : "Entrar"}
+            {serverError && (
+              <Typography
+                color="error"
+                variant="body2"
+              >
+                {serverError}
+              </Typography>
+            )}
+
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+            >
+              {isRegister
+                ? "Crear cuenta"
+                : "Entrar"}
             </Button>
 
-            <Button variant="text" onClick={() => setIsRegister((s) => !s)}>
-              {isRegister ? "¿Ya tienes cuenta? Inicia sesión" : "¿No tienes cuenta? Regístrate"}
+            <Button
+              variant="text"
+              onClick={() =>
+                setIsRegister(
+                  (v) => !v
+                )
+              }
+            >
+              {isRegister
+                ? "¿Ya tienes cuenta? Inicia sesión"
+                : "¿No tienes cuenta? Regístrate"}
             </Button>
           </Stack>
         </Paper>

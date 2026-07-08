@@ -14,6 +14,10 @@ type DashboardHeroProps = {
   subtitle?: string;
   badge?: string;
   avatar?: ReactNode;
+  details?: {
+    label: string;
+    value: string;
+  }[];
 };
 
 export default function DashboardHero({
@@ -21,6 +25,7 @@ export default function DashboardHero({
   subtitle,
   badge,
   avatar,
+  details = [],
 }: DashboardHeroProps) {
   return (
     <Paper
@@ -57,6 +62,27 @@ export default function DashboardHero({
             >
               {subtitle}
             </Typography>
+          )}
+
+          {details.length > 0 && (
+            <Stack
+              direction="row"
+              spacing={1}
+              flexWrap="wrap"
+              sx={{ mt: 3 }}
+            >
+              {details.map((detail) => (
+                <Chip
+                  key={detail.label}
+                  label={`${detail.label}: ${detail.value}`}
+                  sx={{
+                    bgcolor: "rgba(255,255,255,.18)",
+                    color: "white",
+                    fontWeight: 600,
+                  }}
+                />
+              ))}
+            </Stack>
           )}
 
           {badge && (

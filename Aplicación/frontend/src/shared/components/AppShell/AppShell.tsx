@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import {
-  Avatar,
   Badge,
   Box,
   Button,
   ButtonBase,
-  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   Drawer,
   IconButton,
@@ -13,8 +16,6 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Menu,
-  MenuItem,
   Paper,
   Stack,
   Toolbar,
@@ -28,8 +29,6 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import VaccinesIcon from "@mui/icons-material/Vaccines";
 import KeyboardArrowLeftOutlinedIcon from "@mui/icons-material/KeyboardArrowLeftOutlined";
 import KeyboardArrowRightOutlinedIcon from "@mui/icons-material/KeyboardArrowRightOutlined";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import LockIcon from "@mui/icons-material/Lock";
 
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -47,8 +46,6 @@ export interface AppShellProps {
 }
 
 export default function AppShell({
-  role,
-  userName,
   menuItems,
   drawerWidth,
   collapsed,
@@ -57,14 +54,12 @@ export default function AppShell({
   children,
 }: AppShellProps) {
   const theme = useTheme();
-
   const navigate = useNavigate();
   const location = useLocation();
 
   const unreadNotifications = 3;
 
-  const [profileMenuAnchor, setProfileMenuAnchor] =
-    useState<null | HTMLElement>(null);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const [expandedContentVisible, setExpandedContentVisible] =
     useState(!collapsed);
@@ -97,18 +92,8 @@ export default function AppShell({
         bgcolor: "background.paper",
       }}
     >
-      <Box
-        sx={{
-          px: 3,
-          py: 2.5,
-          minHeight: 72,
-        }}
-      >
-        <Stack
-          direction="row"
-          spacing={1.5}
-          alignItems="center"
-        >
+      <Box sx={{ px: 3, py: 2.5, minHeight: 72 }}>
+        <Stack direction="row" spacing={1.5} alignItems="center">
           <Box
             sx={{
               width: 44,
@@ -125,17 +110,11 @@ export default function AppShell({
 
           {showExpandedContent && (
             <Box>
-              <Typography
-                variant="subtitle1"
-                fontWeight={800}
-              >
+              <Typography variant="subtitle1" fontWeight={800}>
                 VacunaGest
               </Typography>
 
-              <Typography
-                variant="body2"
-                color="text.secondary"
-              >
+              <Typography variant="body2" color="text.secondary">
                 Sistema de vacunación
               </Typography>
             </Box>
@@ -145,45 +124,29 @@ export default function AppShell({
 
       <Divider />
 
-      <List
-        sx={{
-          flex: 1,
-          px: 1.5,
-          py: 1.5,
-        }}
-      >
+      <List sx={{ flex: 1, px: 1.5, py: 1.5 }}>
         {menuItems.map((item) => {
           const Icon = item.icon;
-
-          const active =
-            location.pathname === item.path;
+          const active = location.pathname === item.path;
 
           return (
             <ListItemButton
               key={item.label}
               selected={active}
               onClick={() => navigate(item.path)}
-              sx={{
-                mb: 0.5,
-                borderRadius: 2,
-                minHeight: 48,
-              }}
+              sx={{ mb: 0.5, borderRadius: 2, minHeight: 48 }}
             >
               <ListItemIcon
                 sx={{
                   minWidth: 40,
-                  color: active
-                    ? "primary.main"
-                    : "text.secondary",
+                  color: active ? "primary.main" : "text.secondary",
                 }}
               >
                 <Icon />
               </ListItemIcon>
 
               {showExpandedContent && (
-                <ListItemText
-                  primary={item.label}
-                />
+                <ListItemText primary={item.label} />
               )}
             </ListItemButton>
           );
@@ -198,19 +161,20 @@ export default function AppShell({
           variant="outlined"
           onClick={onToggleCollapsed}
           startIcon={
-            showExpandedContent
-              ? <KeyboardArrowLeftOutlinedIcon />
-              : <KeyboardArrowRightOutlinedIcon />
+            showExpandedContent ? (
+              <KeyboardArrowLeftOutlinedIcon />
+            ) : (
+              <KeyboardArrowRightOutlinedIcon />
+            )
           }
         >
-          {showExpandedContent
-            ? "Contraer menú"
-            : ""}
+          {showExpandedContent ? "Contraer menú" : ""}
         </Button>
       </Box>
     </Box>
   );
-    const mobileBottomBar = (
+
+  const mobileBottomBar = (
     <Paper
       elevation={10}
       sx={{
@@ -227,7 +191,8 @@ export default function AppShell({
         backdropFilter: "blur(16px)",
         px: 1,
         py: 0.75,
-        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.5rem)",
+        paddingBottom:
+          "calc(env(safe-area-inset-bottom, 0px) + 0.5rem)",
       }}
     >
       <Box
@@ -239,9 +204,7 @@ export default function AppShell({
       >
         {menuItems.map((item) => {
           const Icon = item.icon;
-
-          const active =
-            location.pathname === item.path;
+          const active = location.pathname === item.path;
 
           return (
             <ButtonBase
@@ -255,9 +218,7 @@ export default function AppShell({
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 0.5,
-                color: active
-                  ? "primary.main"
-                  : "text.secondary",
+                color: active ? "primary.main" : "text.secondary",
                 bgcolor: active
                   ? "rgba(21,101,192,0.08)"
                   : "transparent",
@@ -294,16 +255,13 @@ export default function AppShell({
           display: { xs: "none", md: "block" },
           width: drawerWidth,
           flexShrink: 0,
-          transition: theme.transitions.create(
-            "width"
-          ),
+          transition: theme.transitions.create("width"),
         }}
       >
         <Drawer
           variant="permanent"
           PaperProps={{
-            onTransitionEnd:
-              handleDrawerTransitionEnd,
+            onTransitionEnd: handleDrawerTransitionEnd,
           }}
           sx={{
             "& .MuiDrawer-paper": {
@@ -312,8 +270,7 @@ export default function AppShell({
               overflowX: "hidden",
               borderRight: 1,
               borderColor: "divider",
-              transition:
-                theme.transitions.create("width"),
+              transition: theme.transitions.create("width"),
             },
           }}
         >
@@ -321,37 +278,22 @@ export default function AppShell({
         </Drawer>
       </Box>
 
-      <Box
-        sx={{
-          flex: 1,
-          minWidth: 0,
-        }}
-      >
+      <Box sx={{ flex: 1, minWidth: 0 }}>
         <Box
           sx={{
             position: "sticky",
             top: 0,
             zIndex: theme.zIndex.appBar,
             backdropFilter: "blur(16px)",
-            backgroundColor:
-              "rgba(244,247,251,0.88)",
+            backgroundColor: "rgba(244,247,251,0.88)",
             borderBottom: 1,
             borderColor: "divider",
           }}
         >
-          <Toolbar
-            sx={{
-              minHeight: 72,
-              px: 3,
-            }}
-          >
+          <Toolbar sx={{ minHeight: 72, px: 3 }}>
             <Box sx={{ flex: 1 }} />
 
-            <Stack
-              direction="row"
-              spacing={1.5}
-              alignItems="center"
-            >
+            <Stack direction="row" spacing={1.5} alignItems="center">
               <Tooltip title="Notificaciones">
                 <Badge
                   badgeContent={unreadNotifications}
@@ -375,60 +317,12 @@ export default function AppShell({
               </Tooltip>
 
               <Button
-                onClick={(event) =>
-                  setProfileMenuAnchor(
-                    event.currentTarget
-                  )
-                }
-                sx={{
-                  bgcolor: "white",
-                  border: 1,
-                  borderColor: "divider",
-                  textTransform: "none",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  px: 1,
-                  py: 0.5,
-                }}
+                variant="contained"
+                color="error"
+                startIcon={<LogoutIcon />}
+                onClick={() => setLogoutDialogOpen(true)}
               >
-                <Avatar
-                  sx={{
-                    bgcolor: "primary.main",
-                    width: 38,
-                    height: 38,
-                  }}
-                >
-                  {userName
-                    .charAt(0)
-                    .toUpperCase()}
-                </Avatar>
-
-                <Box
-                  sx={{
-                    display: {
-                      xs: "none",
-                      sm: "flex",
-                    },
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <Typography
-                    variant="body2"
-                    fontWeight={700}
-                  >
-                    {userName}
-                  </Typography>
-
-                  <Chip
-                    label={role}
-                    size="small"
-                    sx={{
-                      mt: 0.25,
-                    }}
-                  />
-                </Box>
+                Cerrar sesión
               </Button>
             </Stack>
           </Toolbar>
@@ -436,14 +330,8 @@ export default function AppShell({
 
         <Box
           sx={{
-            p: {
-              xs: 2,
-              md: 3,
-            },
-            pb: {
-              xs: 11,
-              md: 3,
-            },
+            p: { xs: 2, md: 3 },
+            pb: { xs: 11, md: 3 },
             maxWidth: 1600,
             mx: "auto",
           }}
@@ -454,57 +342,35 @@ export default function AppShell({
 
       {mobileBottomBar}
 
-      <Menu
-        anchorEl={profileMenuAnchor}
-        open={Boolean(profileMenuAnchor)}
-        onClose={() =>
-          setProfileMenuAnchor(null)
-        }
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "right",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
+      <Dialog
+        open={logoutDialogOpen}
+        onClose={() => setLogoutDialogOpen(false)}
       >
-        <MenuItem
-          onClick={() => {
-            setProfileMenuAnchor(null);
-            navigate("/profile/edit");
-          }}
-        >
-          <ListItemIcon>
-            <PersonOutlinedIcon
-              color="inherit"
-              fontSize="small"
-            />
-          </ListItemIcon>
-          Perfil
-        </MenuItem>
+        <DialogTitle>Confirmar cierre de sesión</DialogTitle>
 
-        <Divider />
+        <DialogContent>
+          <DialogContentText>
+            ¿Estás seguro de que quieres cerrar sesión?
+          </DialogContentText>
+        </DialogContent>
 
-        <MenuItem
-          sx={{
-            color: "error.main",
-          }}
-          onClick={() => {
-            setProfileMenuAnchor(null);
-            onLogout();
-          }}
-        >
-          <ListItemIcon>
-            <LogoutIcon
-              color="error"
-              fontSize="small"
-            />
-          </ListItemIcon>
+        <DialogActions>
+          <Button onClick={() => setLogoutDialogOpen(false)}>
+            Cancelar
+          </Button>
 
-          Cerrar sesión
-        </MenuItem>
-      </Menu>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={() => {
+              setLogoutDialogOpen(false);
+              onLogout();
+            }}
+          >
+            Cerrar sesión
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

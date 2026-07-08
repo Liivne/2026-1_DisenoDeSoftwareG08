@@ -1,22 +1,18 @@
-import { useMemo } from "react";
+import AdminDashboard from "./roles/adminDashboard";
+import HealthStaffDashboard from "./roles/healthStaffDashboard";
+import PatientDashboard from "./roles/patientDashboard";
 
-import AdminDashboard from "./roles/AdminDashboard";
-import HealthStaffDashboard from "./roles/HealthStaffDashboard";
-import PatientDashboard from "./roles/PatientDashboard";
-
-import { roleOrder } from "@/shared/config/roles";
-import { Role } from "@/shared/types/role";
-
-function getStoredRole(): Role {
-  const role = localStorage.getItem("vaccination.role");
-
-  return roleOrder.includes(role as Role)
-    ? (role as Role)
-    : "Paciente";
-}
+import { useAuth } from "@/features/auth/context/AuthContext";
+import { mapApiRoleToFrontendRole } from "@/shared/utils/roleMapper";
 
 export default function DashboardPage() {
-  const role = useMemo(getStoredRole, []);
+  const { user } = useAuth();
+
+  if (!user) {
+    return null;
+  }
+
+  const role = mapApiRoleToFrontendRole(user.role);
 
   switch (role) {
     case "Administrador":
