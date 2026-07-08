@@ -280,3 +280,6 @@ Actualmente el sistema implementa las funcionalidades principales requeridas par
 # Licencia
 
 Proyecto desarrollado con fines exclusivamente académicos.
+
+#Video Demostración 
+[Vídeo](https://youtu.be/QMB8HTJhgyw)
