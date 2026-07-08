@@ -56,6 +56,44 @@ export class AppointmentsController {
       next(error);
     }
   });
+
+  getAll = asyncHandler(async (_req: Request, res: Response) => {
+    const appointments = await appointmentsService.getAppointments();
+
+    res.json(appointments);
+  });
+
+  confirm = asyncHandler(async (req: Request, res: Response) => {
+    const appointment = await appointmentsService.confirmAppointment(
+      Number(req.params.id)
+    );
+
+    res.json(appointment);
+  });
+
+  start = asyncHandler(async (req: Request, res: Response) => {
+    const appointment = await appointmentsService.startAppointment(
+      Number(req.params.id)
+    );
+
+    res.json(appointment);
+  });
+
+  markNoShow = asyncHandler(async (req: Request, res: Response) => {
+    const appointment = await appointmentsService.markNoShow(
+      Number(req.params.id)
+    );
+
+    res.json(appointment);
+  });
+
+  complete = asyncHandler(async (req: Request, res: Response) => {
+    const appointment = await appointmentsService.completeAppointment(
+      Number(req.params.id)
+    );
+
+    res.json(appointment);
+  });
 }
 
 export default new AppointmentsController();

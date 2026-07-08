@@ -19,6 +19,15 @@ type CreateAppointmentData = {
 
 export class AppointmentsRepository {
   // Queries
+  async findAll() {
+    return prisma.appointment.findMany({
+      orderBy: {
+        appointmentDate: "asc",
+      },
+      include: appointmentInclude,
+    });
+  }
+
   async findById(id: number) {
     return prisma.appointment.findUnique({
       where: { id },

@@ -14,6 +14,12 @@ type CreateAppointmentInput = {
 };
 
 export class AppointmentsService {
+  async getAppointments() {
+    const appointments = await appointmentsRepository.findAll();
+
+    return appointments.map(toAppointmentResponse);
+  }
+
   async getMyAppointments(userId: number) {
     const appointments = await appointmentsRepository.findByUserId(userId);
 
@@ -37,16 +43,45 @@ export class AppointmentsService {
       throw new ForbiddenError("No puedes cancelar esta cita.");
     }
 
+    return this.changeStatus(appointmentId, AppointmentStatus.CANCELADA);
+  }
+
+  async confirmAppointment(appointmentId: number) {
+    return this.changeStatus(appointmentId, AppointmentStatus.CONFIRMADA);
+  }
+
+  async startAppointment(appointmentId: number) {
+    return this.changeStatus(appointmentId, AppointmentStatus.EN_PROCESO);
+  }
+
+  async markNoShow(appointmentId: number) {
+    return this.changeStatus(appointmentId, AppointmentStatus.AUSENTE);
+  }
+
+  async completeAppointment(appointmentId: number) {
+    return this.changeStatus(appointmentId, AppointmentStatus.COMPLETADA);
+  }
+
+  private async changeStatus(
+    appointmentId: number,
+    status: AppointmentStatus
+  ) {
+    const appointment = await appointmentsRepository.findById(appointmentId);
+
+    if (!appointment) {
+      throw new NotFoundError("La cita no existe.");
+    }
+
     if (appointment.status === AppointmentStatus.COMPLETADA) {
       throw new ForbiddenError("La cita ya fue completada.");
     }
 
-    const cancelled = await appointmentsRepository.updateStatus(
+    const updated = await appointmentsRepository.updateStatus(
       appointmentId,
-      AppointmentStatus.CANCELADA
+      status
     );
 
-    return toAppointmentResponse(cancelled);
+    return toAppointmentResponse(updated);
   }
 }
 
