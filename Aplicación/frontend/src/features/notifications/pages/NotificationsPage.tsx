@@ -16,12 +16,16 @@ import type {
   NotificationFilter,
   NotificationRole,
 } from "../types/notification";
-import { initialNotifications } from "../types/notification";
+import {
+  getUnreadCountForRole,
+  readStoredNotifications,
+  writeStoredNotifications,
+} from "../utils/notificationStorage";
 
 export default function NotificationsPage() {
   const { user } = useAuth();
   const [filter, setFilter] = useState<NotificationFilter>("all");
-  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>(() => readStoredNotifications());
 
   const currentRole = useMemo<NotificationRole | null>(() => {
     if (!user?.role) return null;
@@ -29,15 +33,8 @@ export default function NotificationsPage() {
   }, [user?.role]);
 
   useEffect(() => {
-    setNotifications((prev) =>
-      prev.map((notification) => {
-        if (notification.status === "unread") {
-          return notification;
-        }
-        return notification;
-      }),
-    );
-  }, [currentRole]);
+    writeStoredNotifications(notifications);
+  }, [notifications]);
 
   const filteredNotifications = useMemo(() => {
     const roleScopedNotifications = notifications.filter((notification) => {
@@ -64,22 +61,16 @@ export default function NotificationsPage() {
   }, [currentRole, filter, notifications]);
 
   const unreadCount = useMemo(() => {
-    return notifications.filter(
-      (notification) => notification.status === "unread",
-    ).length;
-  }, [notifications]);
+    return getUnreadCountForRole(notifications, currentRole);
+  }, [currentRole, notifications]);
 
-  const markAllAsRead = () => {
+  const markNotificationAsRead = (id: number) => {
     setNotifications((prev) =>
-      prev.map((notification) => ({ ...notification, status: "read" })),
+      prev.map((notification) =>
+        notification.id === id ? { ...notification, status: "read" } : notification,
+      ),
     );
   };
-
-  useEffect(() => {
-    if (filteredNotifications.some((notification) => notification.status === "unread")) {
-      markAllAsRead();
-    }
-  }, [filteredNotifications]);
 
   return (
     <Stack spacing={3}>
@@ -137,10 +128,13 @@ export default function NotificationsPage() {
         </Stack>
 
         {filteredNotifications.map((notification) => (
-          <NotificationCard
+          <div
             key={notification.id}
-            notification={notification}
-          />
+            onClick={() => markNotificationAsRead(notification.id)}
+            style={{ cursor: "pointer" }}
+          >
+            <NotificationCard notification={notification} />
+          </div>
         ))}
 
         {filteredNotifications.length === 0 && (
